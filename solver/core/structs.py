@@ -23,6 +23,6 @@ def postordereval(node):
         res1 = postordereval(node.left)
         res2 = postordereval(node.right)
         if res1 and res2:
-            return node.value(res1, res2).result
+            return node.value(res1, res2)
         else:
             return node.value

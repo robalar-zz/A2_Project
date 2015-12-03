@@ -24,8 +24,6 @@ class Mul(Operator):
     def __init__(self, left, right):
         pass
 
-    def __repr__(self):
-        return self.symbol
 
 
 class Div(Operator):
@@ -44,8 +42,8 @@ class Add(Operator):
     precedence = 2
     association = 'left'
 
-    def __init__(self, left, right):
-        self.result = left + right
+    def __init__(self, *args):
+        pass
 
 
 class Sub(Operator):
@@ -56,3 +54,10 @@ class Sub(Operator):
 
     def __init__(self, left, right):
         pass
+
+
+class UMin(Operator):
+
+    symbol = '-u'
+    precedence = 4
+    association = 'right'

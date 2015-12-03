@@ -1,6 +1,6 @@
 from collections import deque
 
-from structs import ASTNode
+from structs import ASTNode, post_order
 from symbol import Symbol
 from operations import *
 
@@ -10,14 +10,26 @@ __author__ = 'Robert Hales'
 class Expression(object):
 
     def __init__(self, tokens):
-        self.tokens = tokens
-        self.ast = self.build_ast(tokens)
+        self.tokens = self.sanitise_unary(tokens)
+
+        self.ast = self.build_ast(self.tokens)
 
     def __repr__(self):
         return str(self.tokens)
 
     def flatten(self):
         pass
+
+    @staticmethod
+    def sanitise_unary(tokens):
+        t = []
+        for token in tokens:
+            if token is UMin:
+                t += [-1, Mul]
+            else:
+                t += [token]
+        return t
+
 
     def _shunting_yard(self, tokens):
 
@@ -93,3 +105,5 @@ class Expression(object):
 
     def build_ast(self, token_list):
         return self._rpn_to_ast(self._shunting_yard(token_list))
+
+
