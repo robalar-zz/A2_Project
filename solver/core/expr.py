@@ -1,6 +1,6 @@
 from collections import deque
 from structs import ASTNode
-import sys
+from symbol import Symbol
 
 __author__ = 'Robert Hales'
 
@@ -16,16 +16,11 @@ class Operator(object):
         return self.symbol
 
 
-Pow = Operator('^', 4, 'right')
+Pow = Operator('**', 4, 'right')
 Mul = Operator('*', 3, 'left')
 Div = Operator('/', 3, 'left')
 Add = Operator('+', 2, 'left')
 Min = Operator('-', 2, 'left')
-LPar = Operator('(', 0, 'left')
-RPar = Operator(')', 0, 'left')
-
-# A*(B+C*D)+E
-t = [9, Mul, '(', 10, Add, 11, Mul, 12, ')', Add, 13]
 
 
 def shunting_yard(tokens):
@@ -40,7 +35,7 @@ def shunting_yard(tokens):
 
     for token in tokens:
         # If the token is a number...
-        if isinstance(token, (int, float)):
+        if isinstance(token, (int, float, Symbol)):
             out_queue.append(token) # ...add it to the output queue
 
         # If the token is an operator...
@@ -87,7 +82,7 @@ def rpn_to_ast(rpn_list):
     stack = []
 
     for token in rpn_list:
-        if isinstance(token, (int, float)):
+        if isinstance(token, (int, float, Symbol)):
             stack.append(ASTNode(token))
         elif isinstance(token, Operator):
             b = stack.pop()
@@ -99,3 +94,4 @@ def rpn_to_ast(rpn_list):
 
 def build_expression_ast(token_list):
     return rpn_to_ast(shunting_yard(token_list))
+
