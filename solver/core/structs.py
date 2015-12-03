@@ -5,10 +5,12 @@ class ASTNode(object):
         self.left = left
         self.right = right
 
-    def get_children_recursive(self, level=0):
-        children = [self.left, self.right]
-        string = '{0}{1}\n'.format('\t'*level, self.value)
-        for child in children:
-            if child is not None:
-                string += child.get_children_recursive(level+1)
-        return string
+    def __repr__(self):
+        return str(self.value)
+
+
+def post_order(node):
+    if node is not None:
+        post_order(node.left)
+        post_order(node.right)
+        print node.value
