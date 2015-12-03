@@ -45,7 +45,7 @@ class Add(Operator):
     association = 'left'
 
     def __init__(self, left, right):
-        pass
+        self.result = left + right
 
 
 class Sub(Operator):
