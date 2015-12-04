@@ -1,6 +1,7 @@
 from collections import deque
+from copy import deepcopy
 
-from structs import ASTNode
+from structs import ASTNode, post_order
 from symbol import Symbol, is_operator, is_commutative_operator
 from operations import *
 
@@ -199,7 +200,7 @@ class Expression(object):
                 node.children[1] = ASTNode(Mul, [b, c])
 
             # If fraction is denominator
-            if is_operator(node.value, Div) and is_operator(node.children[1].value, Div):
+            elif is_operator(node.value, Div) and is_operator(node.children[1].value, Div):
                 a = node.children[0]
                 b = node.children[1].children[0]
                 c = node.children[1].children[1]
@@ -208,7 +209,7 @@ class Expression(object):
                 node.children[1] = c
 
             # If fraction is multiplied
-            if is_operator(node.value, Mul) and next((child for child in node.children if child.value == Div), None):
+            elif is_operator(node.value, Mul) and next((child for child in node.children if child.value == Div), None):
                 first_occurance = next(child for child in node.children if child.value == Div)
                 b = first_occurance.children[0]
                 c = first_occurance.children[1]
@@ -222,17 +223,33 @@ class Expression(object):
         return ast
 
 
+    @staticmethod
+    def simplify_ast(ast):
+        old_ast = deepcopy(ast)
+
+        ast = Expression._remove_subtraction(ast)
+        ast.set_parents()
+        ast = Expression._level_operators(ast)
+        ast.set_parents()
+        ast = Expression._simplify_rationals(ast)
+        ast.set_parents()
+
+        print 'old ast'
+        post_order(old_ast)
+        print 'new ast'
+        post_order(ast)
+
+        if ast == old_ast:
+            return ast
+        else:
+            return Expression.simplify_ast(ast)
+
     ###
 
     def __init__(self, tokens):
         self.tokens = self.sanitise_unary(tokens)
         self.ast = self.build_ast(self.tokens)
-        self.ast = self._remove_subtraction(self.ast)
-        self.ast.set_parents()
-        self.ast = self._level_operators(self.ast)
-        self.ast.set_parents()
-        self.ast = self._simplify_rationals(self.ast)
-        self.ast.set_parents()
+        self.ast = Expression.simplify_ast(self.ast)
 
     def build_ast(self, token_list):
         return self._rpn_to_ast(self._shunting_yard(token_list))
