@@ -1,9 +1,8 @@
 class ASTNode(object):
 
-    def __init__(self, value, left=None, right=None):
+    def __init__(self, value, children=[]):
         self.value = value
-        self.left = left
-        self.right = right
+        self.children = children
 
     def __repr__(self):
         return str(self.value)
@@ -11,10 +10,9 @@ class ASTNode(object):
 
 def post_order(node):
     if node is not None:
-        post_order(node.left)
-        post_order(node.right)
+        for child in node.children:
+            post_order(child)
         print node.value
-
 
 def postordereval(node):
     res1 = None
@@ -26,3 +24,13 @@ def postordereval(node):
             return node.value(res1, res2)
         else:
             return node.value
+
+
+def find_all(node, val):
+    print node.value
+    if node.value == val:
+        yield node
+    find_all(node.left, val)
+    find_all(node.right, val)
+
+

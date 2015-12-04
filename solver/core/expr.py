@@ -106,7 +106,7 @@ class Expression(object):
                 b = stack.pop()
                 a = stack.pop()
                 # ...add the operator as a node with the operand nodes as its children
-                stack.append(ASTNode(token, a, b))
+                stack.append(ASTNode(token, children=[a, b]))
 
         return stack[0]
 
