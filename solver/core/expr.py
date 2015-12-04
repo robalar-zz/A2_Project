@@ -9,18 +9,18 @@ __author__ = 'Robert Hales'
 
 class Expression(object):
 
-    def __init__(self, tokens):
-        self.tokens = self.sanitise_unary(tokens)
-
-        self.ast = self.build_ast(self.tokens)
-        self.ast = self._remove_subtraction(self.ast)
-        self.ast = self._level_operators(self.ast)
-
-    def __repr__(self):
-        return str(self.tokens)
+    # Static methods
 
     @staticmethod
     def sanitise_unary(tokens):
+        """ Replace unary minus tokens with -1, * in input token list
+
+            Args:
+                tokens: list of tokens to be sanitised
+
+            Returns:
+                Sanitised list
+        """
         t = []
         for token in tokens:
             if token is UMin:
@@ -29,12 +29,24 @@ class Expression(object):
                 t += [token]
         return t
 
-    def _shunting_yard(self, tokens):
+    @staticmethod
+    def _shunting_yard(tokens):
+        """ Turns a statement in infix notation to RP (postfix) notation
 
-        """
-        An implementation of Edsger Dijkstra's shunting-yard algorithm from the psudo-code here:
+            An implementation of Edsger Dijkstra's shunting-yard algorithm from the pseudo-code here:
             https://en.wikipedia.org/wiki/Shunting-yard_algorithm
+
+            Args:
+                tokens: A list of tokens to convert to RP notation, must be operators, numbers, or symbols
+
+            Returns:
+                A list of operators, numbers, and symbols in RPN
+
+            Raises:
+                SyntaxError: There were mismatched parenthesis in the expression
         """
+
+        # TODO: Add type checking
 
         out_queue = deque()
         op_stack = []
@@ -76,14 +88,26 @@ class Expression(object):
 
         # After all tokens are read...
         while op_stack:
+            # If there are parenthesis still left on the stack
             if op_stack[-1] == '(' or op_stack[-1] == ')':
-                raise Exception('Mismatched parenthesis in expression ')
+                raise SyntaxError('Mismatched parenthesis in expression ')
             out_queue.append(op_stack.pop())
 
         return list(out_queue)
 
-    def _rpn_to_ast(self, rpn_list):
+    @staticmethod
+    def _rpn_to_ast(rpn_list):
+        """ Turns a statement in RP notation to an AST
 
+            e.g: a b + ->       +
+                              /  \
+                             a    b
+            Args:
+                rpn_list: list of tokens in RP notation
+
+            Returns:
+                The root node of the AST
+        """
         stack = []
 
         for token in rpn_list:
@@ -101,22 +125,54 @@ class Expression(object):
 
         return stack[0]
 
-    def build_ast(self, token_list):
-        return self._rpn_to_ast(self._shunting_yard(token_list))
-
     @staticmethod
     def _remove_subtraction(ast):
+        """ Removes subtraction nodes from a tree, replacing them with equivalent commutative nodes.
+
+        Expands a - b into a + (-1 * b), reducing the syntactic complexity of an AST
+
+        e.g:         -                  +
+                   /  \     ->        /  \
+                  a    b             a    *
+                                         / \
+                                       -1   b
+
+        Args:
+            ast: The abstract syntax tree to perform the modification on
+
+        Returns:
+            The modified AST with all subtraction operators removed
+        """
         for node in ast:
             if node.value == Sub:
+                # Change the operation to +
                 node.value = Add
+                # store the left hand side of the expression
                 b = node.children[1]
+                # add the leaf nodes
                 b.children = [ASTNode(-1), ASTNode(b.value)]
+                # change the child operation to *
                 b.value = Mul
 
         return ast
 
     @staticmethod
     def _level_operators(ast):
+        """ Reduces nested binary commutative operators to a single non-binary node
+
+        e.g:        +                   +
+                  /  \                / | \
+                 +    c     ->       a  b  c
+               /  \
+              a    b
+
+        Args:
+            Args:
+            ast: The abstract syntax tree to perform the modification on
+
+        Returns:
+            The modified AST with all commutative operations reduced
+        """
         for node in ast:
             for child in node.children:
                 # only works for commutative operators ( *, +)
@@ -127,3 +183,18 @@ class Expression(object):
                     node.children.remove(child)
 
         return ast
+
+    ###
+
+    def __init__(self, tokens):
+        self.tokens = self.sanitise_unary(tokens)
+
+        self.ast = self.build_ast(self.tokens)
+        self.ast = self._remove_subtraction(self.ast)
+        self.ast = self._level_operators(self.ast)
+
+    def __repr__(self):
+        return str(self.tokens)
+
+    def build_ast(self, token_list):
+        return self._rpn_to_ast(self._shunting_yard(token_list))
