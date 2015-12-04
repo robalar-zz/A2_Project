@@ -13,12 +13,10 @@ class Expression(object):
         self.tokens = self.sanitise_unary(tokens)
 
         self.ast = self.build_ast(self.tokens)
+        self.ast = self._remove_subtraction(self.ast)
 
     def __repr__(self):
         return str(self.tokens)
-
-    def flatten(self):
-        pass
 
     @staticmethod
     def sanitise_unary(tokens):
@@ -115,6 +113,11 @@ class Expression(object):
 
     @staticmethod
     def _remove_subtraction(ast):
-        pass
+        for node in ast:
+            if node.value == Sub:
+                node.value == Add
+                b = node.children[1]
+                b.children = [ASTNode(-1), ASTNode(b.value)]
+                b.value = Mul
 
-
+        return ast
