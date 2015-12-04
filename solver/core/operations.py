@@ -3,6 +3,7 @@ class Operator(object):
     symbol = None
     precedence = None
     association = None
+    commutative = False
 
 class Pow(Operator):
 
@@ -19,6 +20,7 @@ class Mul(Operator):
     symbol = '*'
     precedence = 3
     association = 'left'
+    commutative = True
 
     def __init__(self, left, right):
         pass
@@ -40,6 +42,7 @@ class Add(Operator):
     symbol = '+'
     precedence = 2
     association = 'left'
+    commutative = True
 
     def __init__(self, *args):
         pass
@@ -60,3 +63,16 @@ class UMin(Operator):
     symbol = '-u'
     precedence = 4
     association = 'right'
+
+
+def is_operator(token):
+        try:
+            issubclass(token, Operator)
+            return True
+        except TypeError:
+            # token is not a class (or operator)
+            return False
+
+
+def is_commutative_operator(token):
+    return is_operator(token) and token.commutative

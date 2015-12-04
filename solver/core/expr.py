@@ -1,7 +1,7 @@
 from collections import deque
 
 from structs import ASTNode, post_order
-from symbol import Symbol, is_operator
+from symbol import Symbol, is_operator, is_commutative_operator
 from operations import *
 
 __author__ = 'Robert Hales'
@@ -119,8 +119,11 @@ class Expression(object):
     def _level_operators(ast):
         for node in ast:
             for child in node.children:
-                if is_operator(child.value) and child.value == node.value:
+                # only works for commutative operators ( *, +)
+                if is_commutative_operator(child.value) and child.value == node.value:
+                    # Add the child's children to the parents children
                     node.children += child.children
+                    # Remove the child from the children
                     node.children.remove(child)
 
         return ast
