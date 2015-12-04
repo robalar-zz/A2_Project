@@ -1,6 +1,6 @@
 from collections import deque
 
-from structs import ASTNode, post_order
+from structs import ASTNode
 from symbol import Symbol, is_operator, is_commutative_operator
 from operations import *
 
@@ -47,6 +47,7 @@ class Expression(object):
         """
 
         # TODO: Add type checking
+        # TODO: Add function support?
 
         out_queue = deque()
         op_stack = []
@@ -167,7 +168,6 @@ class Expression(object):
               a    b
 
         Args:
-            Args:
             ast: The abstract syntax tree to perform the modification on
 
         Returns:
@@ -184,17 +184,55 @@ class Expression(object):
 
         return ast
 
+    @staticmethod
+    def _simplify_rationals(ast):
+        # TODO: Docstring
+
+        for node in ast:
+            # If fraction is numerator
+            if is_operator(node.value, Div) and is_operator(node.children[0].value, Div):
+                a = node.children[0].children[0]
+                b = node.children[0].children[1]
+                c = node.children[1]
+
+                node.children[0] = a
+                node.children[1] = ASTNode(Mul, [b, c])
+
+            # If fraction is denominator
+            if is_operator(node.value, Div) and is_operator(node.children[1].value, Div):
+                a = node.children[0]
+                b = node.children[1].children[0]
+                c = node.children[1].children[1]
+
+                node.children[0] = ASTNode(Mul, [a, b])
+                node.children[1] = c
+
+            # If fraction is multiplied
+            if is_operator(node.value, Mul) and next((child for child in node.children if child.value == Div), None):
+                first_occurance = next(child for child in node.children if child.value == Div)
+                b = first_occurance.children[0]
+                c = first_occurance.children[1]
+                node.children.remove(first_occurance)
+                a = node.children
+
+                node.value = Div
+                node.children[0] = ASTNode(Mul, a + [b])
+                node.children.append(c)
+
+        return ast
+
+
     ###
 
     def __init__(self, tokens):
         self.tokens = self.sanitise_unary(tokens)
-
         self.ast = self.build_ast(self.tokens)
         self.ast = self._remove_subtraction(self.ast)
+        self.ast.set_parents()
         self.ast = self._level_operators(self.ast)
-
-    def __repr__(self):
-        return str(self.tokens)
+        self.ast.set_parents()
+        self.ast = self._simplify_rationals(self.ast)
+        self.ast.set_parents()
 
     def build_ast(self, token_list):
         return self._rpn_to_ast(self._shunting_yard(token_list))
