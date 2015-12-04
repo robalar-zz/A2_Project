@@ -5,14 +5,18 @@ class ASTNode(object):
         self.children = children
         self.parent = None
 
-        for child in self.children:
-            child.parent = self
+        self.set_parents()
 
     def __iter__(self):
         yield self
         for child in self.children:
             for node in child:
                 yield node
+
+    def set_parents(self):
+        for child in self.children:
+            child.parent = self
+            child.set_parents()
 
 
 def post_order(node):
