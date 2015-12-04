@@ -8,6 +8,12 @@ class ASTNode(object):
         for child in self.children:
             child.parent = self
 
+    def __iter__(self):
+        yield self
+        for child in self.children:
+            for node in child:
+                yield node
+
 
 def post_order(node):
     if node is not None:
@@ -28,10 +34,10 @@ def postordereval(node):
 
 
 def find_all(node, val):
-    #print node.value
-    if node.value == val:
+    if node is not None:
         yield node
-    for child in node.children:
-        find_all(child, val)
+        for child in node.children:
+            for n in find_all(child, val):
+                yield n
 
 
