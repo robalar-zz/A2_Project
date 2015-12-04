@@ -1,7 +1,7 @@
 from collections import deque
 
 from structs import ASTNode, post_order
-from symbol import Symbol
+from symbol import Symbol, is_operator
 from operations import *
 
 __author__ = 'Robert Hales'
@@ -14,6 +14,7 @@ class Expression(object):
 
         self.ast = self.build_ast(self.tokens)
         self.ast = self._remove_subtraction(self.ast)
+        self.ast = self._level_operators(self.ast)
 
     def __repr__(self):
         return str(self.tokens)
@@ -27,14 +28,6 @@ class Expression(object):
             else:
                 t += [token]
         return t
-
-    def is_operator(self, token):
-        try:
-            issubclass(token, Operator)
-            return True
-        except TypeError:
-            #token is not a class (or operator)
-            return False
 
     def _shunting_yard(self, tokens):
 
@@ -52,9 +45,9 @@ class Expression(object):
                 out_queue.append(token) # ...add it to the output queue
 
             # If the token is an operator...
-            elif self.is_operator(token):
+            elif is_operator(token):
                 # While there is an operator in the stack...
-                while op_stack and self.is_operator(op_stack[-1]):
+                while op_stack and is_operator(op_stack[-1]):
                     top_operator = op_stack[-1]
                     # ...if token is left-associative and its precedence is <= to that of the top operator...
                     if (token.association == 'left' and token.precedence <= top_operator.precedence or
@@ -115,9 +108,19 @@ class Expression(object):
     def _remove_subtraction(ast):
         for node in ast:
             if node.value == Sub:
-                node.value == Add
+                node.value = Add
                 b = node.children[1]
                 b.children = [ASTNode(-1), ASTNode(b.value)]
                 b.value = Mul
+
+        return ast
+
+    @staticmethod
+    def _level_operators(ast):
+        for node in ast:
+            for child in node.children:
+                if is_operator(child.value) and child.value == node.value:
+                    node.children += child.children
+                    node.children.remove(child)
 
         return ast
