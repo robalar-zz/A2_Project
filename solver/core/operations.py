@@ -65,9 +65,10 @@ class UMin(Operator):
     association = 'right'
 
 
-def is_operator(token):
+def is_operator(token, op=Operator):
         try:
-            issubclass(token, Operator)
+            if not issubclass(token, op):
+                return False
             return True
         except TypeError:
             # token is not a class (or operator)
