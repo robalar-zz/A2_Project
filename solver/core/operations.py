@@ -4,7 +4,6 @@ class Operator(object):
     precedence = None
     association = None
 
-
 class Pow(Operator):
 
     symbol = '**'

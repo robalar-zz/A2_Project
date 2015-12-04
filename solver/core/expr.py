@@ -30,6 +30,13 @@ class Expression(object):
                 t += [token]
         return t
 
+    def is_operator(self, token):
+        try:
+            issubclass(token, Operator)
+            return True
+        except TypeError:
+            #token is not a class (or operator)
+            return False
 
     def _shunting_yard(self, tokens):
 
@@ -47,9 +54,9 @@ class Expression(object):
                 out_queue.append(token) # ...add it to the output queue
 
             # If the token is an operator...
-            elif issubclass(token, Operator):
+            elif self.is_operator(token):
                 # While there is an operator in the stack...
-                while op_stack and issubclass(op_stack[-1], Operator):
+                while op_stack and self.is_operator(op_stack[-1]):
                     top_operator = op_stack[-1]
                     # ...if token is left-associative and its precedence is <= to that of the top operator...
                     if (token.association == 'left' and token.precedence <= top_operator.precedence or
@@ -105,5 +112,9 @@ class Expression(object):
 
     def build_ast(self, token_list):
         return self._rpn_to_ast(self._shunting_yard(token_list))
+
+    @staticmethod
+    def _remove_subtraction(ast):
+        pass
 
 
