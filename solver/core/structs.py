@@ -1,3 +1,6 @@
+from collections import deque
+
+
 class ASTNode(object):
 
     def __init__(self, value, children=[]):
@@ -11,36 +14,29 @@ class ASTNode(object):
         """
 
     def __iter__(self):
-        yield self
-        for child in self.children:
-            for node in child:
-                yield node
+        """Do a breadth first traversal of the tree"""
+        if self is None:
+            return
 
+        queue = deque()
+        queue.append(self)
+        while queue:
+            current_node = queue.pop()
+            yield current_node
+            for child in current_node.children:
+                queue.append(child)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
     def set_parents(self):
-        for child in self.children:
+        """for child in self.children:
             child.parent = self
-            child.set_parents()
+            child.set_parents()"""
+        pass
 
 
 from collections import deque
-
-def breadth_first(node):
-
-    if node is None:
-        return
-
-    queue = deque()
-    queue.append(node)
-    while queue:
-        current_node = queue.pop()
-        print current_node.value
-        for child in node.children:
-            queue.append(child)
-
 
 def post_order(node):
     if node is not None:
