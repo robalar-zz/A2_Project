@@ -209,34 +209,40 @@ class Expression(object):
                 node.children[1] = c
 
             # If fraction is multiplied
-            elif is_operator(node.value, Mul) and Div in node.children:
-                first = node.children[node.children.index(Div)]
-                b = first.children[0]
-                c = first.children[1]
-                node.children.remove(first)
-                a = node.children[:]
+            elif is_operator(node.value, Mul):
+                if next((child for child in node.children if child.value == Div), None):
+                    first = next(child for child in node.children if child.value == Div)
+                    b = deepcopy(first.children[0])
+                    c = deepcopy(first.children[1])
+                    node.children.remove(first)
+                    a = node.children[:]
+                    node.children = [None]
 
-                node.value = Div
-                node.children[0] = ASTNode(Mul, a + [b])
-                node.children.append(c)
+                    node.value = Div
+                    node.children[0] = ASTNode(Mul, a + [b])
+                    node.children += c
 
         return ast
+
+    @staticmethod
+    def _collect_like_terms(ast):
+        for node in ast:
+            if is_operator(node.value, Mul) and Pow in node.children:
+
+                if node.children.count(Pow) == 1:
+                    break
+
 
 
     @staticmethod
     def simplify_ast(ast):
-        old_ast = deepcopy(ast)
+        # old_ast = deepcopy(ast)
 
         ast = Expression._remove_subtraction(ast)
         ast = Expression._level_operators(ast)
         ast = Expression._simplify_rationals(ast)
 
         return ast
-
-        """if old_ast == ast:
-            return ast
-        else:
-            return Expression.simplify_ast(ast)"""
 
     ###
 
