@@ -209,12 +209,12 @@ class Expression(object):
                 node.children[1] = c
 
             # If fraction is multiplied
-            elif is_operator(node.value, Mul) and next((child for child in node.children if child.value == Div), None):
-                first_occurance = next(child for child in node.children if child.value == Div)
-                b = first_occurance.children[0]
-                c = first_occurance.children[1]
-                node.children.remove(first_occurance)
-                a = node.children
+            elif is_operator(node.value, Mul) and Div in node.children:
+                first = node.children[node.children.index(Div)]
+                b = first.children[0]
+                c = first.children[1]
+                node.children.remove(first)
+                a = node.children[:]
 
                 node.value = Div
                 node.children[0] = ASTNode(Mul, a + [b])
@@ -228,21 +228,15 @@ class Expression(object):
         old_ast = deepcopy(ast)
 
         ast = Expression._remove_subtraction(ast)
-        ast.set_parents()
         ast = Expression._level_operators(ast)
-        ast.set_parents()
         ast = Expression._simplify_rationals(ast)
-        ast.set_parents()
 
-        print 'old ast'
-        post_order(old_ast)
-        print 'new ast'
-        post_order(ast)
+        return ast
 
-        if ast == old_ast:
+        """if old_ast == ast:
             return ast
         else:
-            return Expression.simplify_ast(ast)
+            return Expression.simplify_ast(ast)"""
 
     ###
 
