@@ -236,11 +236,14 @@ class Expression(object):
 
     @staticmethod
     def simplify_ast(ast):
-        # old_ast = deepcopy(ast)
+        old_ast = None
 
-        ast = Expression._remove_subtraction(ast)
-        ast = Expression._level_operators(ast)
-        ast = Expression._simplify_rationals(ast)
+        while old_ast != ast:
+            old_ast = deepcopy(ast)
+
+            ast = Expression._remove_subtraction(ast)
+            ast = Expression._level_operators(ast)
+            ast = Expression._simplify_rationals(ast)
 
         return ast
 

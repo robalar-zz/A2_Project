@@ -15,3 +15,9 @@ class Symbol(object):
         from expr import Expression
         return Expression([self, Add, other])
 
+    def __eq__(self, other):
+
+        if isinstance(other, Symbol):
+            return self.name == other.name
+
+        return False

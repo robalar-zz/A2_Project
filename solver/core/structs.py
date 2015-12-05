@@ -27,7 +27,12 @@ class ASTNode(object):
                 queue.append(child)
 
     def __eq__(self, other):
+        if other is None:
+            return False
         return self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def set_parents(self):
         """for child in self.children:
@@ -35,6 +40,8 @@ class ASTNode(object):
             child.set_parents()"""
         pass
 
+    def __repr__(self):
+        return str(self.value)
 
 from collections import deque
 
