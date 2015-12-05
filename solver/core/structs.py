@@ -5,7 +5,10 @@ class ASTNode(object):
         self.children = children
         self.parent = None
 
+        # TODO: Fix recursion issue on parents
+        """
         self.set_parents()
+        """
 
     def __iter__(self):
         yield self
@@ -13,10 +16,30 @@ class ASTNode(object):
             for node in child:
                 yield node
 
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
     def set_parents(self):
         for child in self.children:
             child.parent = self
             child.set_parents()
+
+
+from collections import deque
+
+def breadth_first(node):
+
+    if node is None:
+        return
+
+    queue = deque()
+    queue.append(node)
+    while queue:
+        current_node = queue.pop()
+        print current_node.value
+        for child in node.children:
+            queue.append(child)
 
 
 def post_order(node):
@@ -24,6 +47,7 @@ def post_order(node):
         for child in node.children:
             post_order(child)
         print node.value
+
 
 def postordereval(node):
     res1 = None
@@ -43,5 +67,3 @@ def find_all(node, val):
         for child in node.children:
             for n in find_all(child, val):
                 yield n
-
-
