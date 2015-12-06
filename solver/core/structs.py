@@ -43,6 +43,19 @@ class ASTNode(object):
     def __repr__(self):
         return str(self.value)
 
+
+def combine_children(list_of_nodes):
+
+    if len(list_of_nodes) == 1:
+        return list_of_nodes[0]
+
+    base_node = list_of_nodes[0]
+    for node in list_of_nodes[1:]:
+        for child in node.children[1:]:
+            base_node.children.append(child)
+
+    return base_node
+
 from collections import deque
 
 def post_order(node):

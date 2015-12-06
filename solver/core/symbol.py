@@ -21,3 +21,8 @@ class Symbol(object):
             return self.name == other.name
 
         return False
+
+    def __ne__(self, other):
+        if isinstance(other, Symbol):
+            return not self.__eq__(other)
+        return True

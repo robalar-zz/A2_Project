@@ -1,7 +1,7 @@
 from collections import deque
 from copy import deepcopy
 
-from structs import ASTNode, post_order
+from structs import ASTNode, combine_children
 from symbol import Symbol, is_operator, is_commutative_operator
 from operations import *
 
@@ -209,8 +209,7 @@ class Expression(object):
                 node.children[1] = c
 
             # If fraction is multiplied
-            elif is_operator(node.value, Mul):
-                if next((child for child in node.children if child.value == Div), None):
+            elif is_operator(node.value, Mul) and next((child for child in node.children if child.value == Div), None):
                     first = next(child for child in node.children if child.value == Div)
                     b = deepcopy(first.children[0])
                     c = deepcopy(first.children[1])
@@ -225,12 +224,35 @@ class Expression(object):
         return ast
 
     @staticmethod
-    def _collect_like_terms(ast):
+    def _collect_like_powers(ast):
+        # TODO: Make more elegant?
         for node in ast:
-            if is_operator(node.value, Mul) and Pow in node.children:
+            if is_operator(node.value, Mul) and next((child for child in node.children if child.value == Pow), None):
 
-                if node.children.count(Pow) == 1:
+                exponentials = [child for child in node.children if child.value == Pow]
+                node.children = [x for x in node.children if x not in exponentials]
+
+                if len(exponentials) == 1:
                     break
+
+                for exp in exponentials:
+                    same_base = [other for other in exponentials if other.children[0] == exp.children[0]]
+
+                    if len(same_base) < 2:
+                        break
+
+                    final = combine_children(same_base)
+                    powers = final.children[1:]
+                    del final.children[1:]
+                    final.children += [ASTNode(Add, powers)]
+
+                    exponentials = [x for x in exponentials if x not in same_base]
+                    exponentials.append(final)
+
+                node.children += exponentials
+
+        return ast
+
 
 
 
@@ -244,7 +266,7 @@ class Expression(object):
             ast = Expression._remove_subtraction(ast)
             ast = Expression._level_operators(ast)
             ast = Expression._simplify_rationals(ast)
-
+            ast = Expression._collect_like_powers(ast)
         return ast
 
     ###

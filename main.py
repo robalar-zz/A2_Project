@@ -8,8 +8,9 @@ c = Symbol('c')
 d = Symbol('d')
 e = Symbol('e')
 f = Symbol('f')
+x = Symbol('x')
+y = Symbol('y')
 
-t = ASTNode(Mul, [ASTNode(a), ASTNode(Div, [ASTNode(b), ASTNode(c)]), ASTNode(Div, [ASTNode(d), ASTNode(e)]), ASTNode(f)])
-ast = Expression.simplify_ast(t)
-for n in ast:
+e = Expression([x, Pow, a, Mul, y, Pow, b, Mul, x, Pow, c, Add, e])
+for n in e.ast:
     print n.value
