@@ -27,18 +27,20 @@ class ASTNode(object):
                 queue.append(child)
 
     def __eq__(self, other):
-        if other is None:
+        if isinstance(other, ASTNode):
+            return self.__dict__ == other.__dict__
+        else:
             return False
-        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    # FIXME
     def set_parents(self):
-        """for child in self.children:
+        for child in self.children:
             child.parent = self
-            child.set_parents()"""
-        pass
+            child.set_parents()
+
 
     def __repr__(self):
         return str(self.value)
