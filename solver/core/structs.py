@@ -92,3 +92,19 @@ def combine_children(list_of_nodes):
             base_node.children.append(child)
 
     return base_node
+
+
+def in_children(node, value):
+    """ Returns the child nodes which have the value of value
+
+    Args:
+        node: Node to search in
+        value: Value to try and match
+    Returns: List of matching nodes
+
+    >>> n = Node('a', [Node('b'), Node(9), Node(9)])
+    >>> in_children(n, 9)
+    [9, 9]
+    """
+
+    return [child for child in node.children if child.value == value]

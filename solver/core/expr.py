@@ -1,7 +1,7 @@
 from collections import deque
 from copy import deepcopy
 
-from structs import Node, combine_children
+from structs import Node, combine_children, in_children
 from symbol import Symbol, is_operator, is_commutative_operator
 from operations import *
 
@@ -21,14 +21,8 @@ class Expression(object):
 
             Returns:
                 Sanitised list
-
-            e.g:
-            >>> Expression.sanitise_unary([UMin, 7])
-            [-1, <class 'operations.Mul'>, 7]
-
-            >>> Expression.sanitise_unary([5, Mul, UMin, 8])
-            [5, <class 'operations.Mul'>, -1, <class 'operations.Mul'>, 8]
         """
+
         t = []
         for token in tokens:
             if token is UMin:
@@ -235,8 +229,8 @@ class Expression(object):
                 node.children[1] = c
 
             # If fraction is multiplied
-            elif is_operator(node.value, Mul) and next((child for child in node.children if child.value == Div), None):
-                    first = next(child for child in node.children if child.value == Div)
+            elif is_operator(node.value, Mul) and in_children(node, Div):
+                    first = in_children(node, Div)[0]
                     b = deepcopy(first.children[0])
                     c = deepcopy(first.children[1])
                     node.children.remove(first)
@@ -253,9 +247,9 @@ class Expression(object):
     def _collect_like_powers(ast):
         # TODO: Make more elegant?
         for node in ast:
-            if is_operator(node.value, Mul) and next((child for child in node.children if child.value == Pow), None):
+            if is_operator(node.value, Mul) and in_children(node, Pow):
 
-                exponentials = [child for child in node.children if child.value == Pow]
+                exponentials = in_children(node, Pow)
                 node.children = [x for x in node.children if x not in exponentials]
 
                 if len(exponentials) == 1:
@@ -270,7 +264,7 @@ class Expression(object):
                     final = combine_children(same_base)
                     powers = final.children[1:]
                     del final.children[1:]
-                    final.children += [Node(Add, powers)]
+                    final.children.append(Node(Add, powers))
 
                     exponentials = [x for x in exponentials if x not in same_base]
                     exponentials.append(final)
