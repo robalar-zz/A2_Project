@@ -21,6 +21,13 @@ class Expression(object):
 
             Returns:
                 Sanitised list
+
+            e.g:
+            >>> Expression.sanitise_unary([UMin, 7])
+            [-1, <class 'operations.Mul'>, 7]
+
+            >>> Expression.sanitise_unary([5, Mul, UMin, 8])
+            [5, <class 'operations.Mul'>, -1, <class 'operations.Mul'>, 8]
         """
         t = []
         for token in tokens:
@@ -45,6 +52,25 @@ class Expression(object):
 
             Raises:
                 SyntaxError: There were mismatched parenthesis in the expression
+
+            Works with numerical statements...
+
+            >>> Expression._shunting_yard([5, Add, 6])
+            [5, 6, <class 'operations.Add'>]
+
+            ...symbolic statements...
+
+             >>> x = Symbol('x')
+             >>> y = Symbol('y')
+             >>> Expression._shunting_yard([x, Mul, y])
+             [x, y, <class 'operations.Mul'>]
+
+             ...brackets...
+
+             >>> Expression._shunting_yard(['(', 5, Add, 6, ')', Mul, x])
+             [5, 6, <class 'operations.Add'>, x, <class 'operations.Mul'>]
+
+             ...functions are NYI.
         """
 
         # TODO: Add type checking
