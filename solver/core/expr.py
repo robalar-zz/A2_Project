@@ -1,7 +1,7 @@
 from collections import deque
 from copy import deepcopy
 
-from structs import ASTNode, combine_children
+from structs import Node, combine_children
 from symbol import Symbol, is_operator, is_commutative_operator
 from operations import *
 
@@ -142,14 +142,14 @@ class Expression(object):
             # If the token is a number or symbol...
             if isinstance(token, (int, float, Symbol)):
                 # ...add it to the stack as a node
-                stack.append(ASTNode(token))
+                stack.append(Node(token))
             # If the token is a operator...
             elif issubclass(token, Operator):
                 # ...get the top two operands...
                 b = stack.pop()
                 a = stack.pop()
                 # ...add the operator as a node with the operand nodes as its children
-                stack.append(ASTNode(token, children=[a, b]))
+                stack.append(Node(token, children=[a, b]))
 
         return stack[0]
 
@@ -178,7 +178,7 @@ class Expression(object):
                 # store the left hand side of the expression
                 b = node.children[1]
                 # add the leaf nodes
-                b.children = [ASTNode(-1), ASTNode(b.value)]
+                b.children = [Node(-1), Node(b.value)]
                 # change the child operation to *
                 b.value = Mul
 
@@ -223,7 +223,7 @@ class Expression(object):
                 c = node.children[1]
 
                 node.children[0] = a
-                node.children[1] = ASTNode(Mul, [b, c])
+                node.children[1] = Node(Mul, [b, c])
 
             # If fraction is denominator
             elif is_operator(node.value, Div) and is_operator(node.children[1].value, Div):
@@ -231,7 +231,7 @@ class Expression(object):
                 b = node.children[1].children[0]
                 c = node.children[1].children[1]
 
-                node.children[0] = ASTNode(Mul, [a, b])
+                node.children[0] = Node(Mul, [a, b])
                 node.children[1] = c
 
             # If fraction is multiplied
@@ -244,7 +244,7 @@ class Expression(object):
                     node.children = [None]
 
                     node.value = Div
-                    node.children[0] = ASTNode(Mul, a + [b])
+                    node.children[0] = Node(Mul, a + [b])
                     node.children += c
 
         return ast
@@ -270,7 +270,7 @@ class Expression(object):
                     final = combine_children(same_base)
                     powers = final.children[1:]
                     del final.children[1:]
-                    final.children += [ASTNode(Add, powers)]
+                    final.children += [Node(Add, powers)]
 
                     exponentials = [x for x in exponentials if x not in same_base]
                     exponentials.append(final)
@@ -278,9 +278,6 @@ class Expression(object):
                 node.children += exponentials
 
         return ast
-
-
-
 
     @staticmethod
     def simplify_ast(ast):
