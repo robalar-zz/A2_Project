@@ -46,25 +46,6 @@ class Expression(object):
 
             Raises:
                 SyntaxError: There were mismatched parenthesis in the expression
-
-            Works with numerical statements...
-
-            >>> Expression._shunting_yard([5, Add, 6])
-            [5, 6, <class 'operations.Add'>]
-
-            ...symbolic statements...
-
-             >>> x = Symbol('x')
-             >>> y = Symbol('y')
-             >>> Expression._shunting_yard([x, Mul, y])
-             [x, y, <class 'operations.Mul'>]
-
-             ...brackets...
-
-             >>> Expression._shunting_yard(['(', 5, Add, 6, ')', Mul, x])
-             [5, 6, <class 'operations.Add'>, x, <class 'operations.Mul'>]
-
-             ...functions are NYI.
         """
 
         # TODO: Add type checking
@@ -90,7 +71,6 @@ class Expression(object):
                         # ... pop it from the stack and push it to the queue
                         out_queue.append(op_stack.pop())
                         continue
-                    break
 
                 op_stack.append(token)
 
@@ -126,9 +106,10 @@ class Expression(object):
                              a    b
             Args:
                 rpn_list: list of tokens in RP notation
-
             Returns:
                 The root node of the AST
+            Raises:
+                TypeError: A unsupported type was passed
         """
         stack = []
 
@@ -144,6 +125,8 @@ class Expression(object):
                 a = stack.pop()
                 # ...add the operator as a node with the operand nodes as its children
                 stack.append(Node(token, children=[a, b]))
+            else:
+                raise TypeError('Expected: number, symbol, or operator. Got {}'.format(type(token)))
 
         return stack[0]
 
