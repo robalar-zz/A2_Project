@@ -238,13 +238,13 @@ class Expression(object):
                 node.children = [x for x in node.children if x not in exponentials]
 
                 if len(exponentials) < 1:
-                    break
+                    continue
 
                 for exp in exponentials:
                     same_base = [other for other in exponentials if other.children[0] == exp.children[0]]
 
                     if len(same_base) < 2:
-                        break
+                        continue
 
                     final = combine_children(same_base)
                     del final.children[2::2]
@@ -273,7 +273,7 @@ class Expression(object):
 
     ###
 
-    def __init__(self, tokens):
+    def __init__(self, *tokens):
         self.tokens = self.sanitise_unary(tokens)
         self.ast = self.build_ast(self.tokens)
         self.ast = Expression.simplify_ast(self.ast)
