@@ -14,6 +14,7 @@ def test_sanitise_unary():
     # 5 * -8 = 5 * -1 * 8
     assert_equal(Expression.sanitise_unary([5, Mul, UMin, 8]), [5, Mul, -1, Mul, 8])
 
+
 def test_shunting_yard():
     # Numerical test: 5 + 3
     assert_equal(Expression._shunting_yard([5, Add, 3]), [5, 3, Add])
@@ -29,6 +30,7 @@ def test_shunting_yard():
     # Mismatched parenthesis
     assert_raises(SyntaxError, Expression._shunting_yard, ['(', 4, Mul, 5, Add, 6])
 
+
 def test_rpn_to_ast():
     # 5 3 +
     assert_equal(Expression._rpn_to_ast([5, 3, Add]), Node(Add, [Node(5), Node(3)]))
@@ -38,6 +40,7 @@ def test_rpn_to_ast():
     assert_equal(Expression._rpn_to_ast([x, y, Add, 5, Mul]), Node(Mul, [Node(Add, [Node(x), Node(y)]), Node(5)]))
     # Invalid symbol
     assert_raises(TypeError, Expression._rpn_to_ast, [5, 'd', Add])
+
 
 def test_remove_subtraction():
     #        -
@@ -50,6 +53,7 @@ def test_remove_subtraction():
     # No changes should be applied
     assert_equal(Expression._remove_subtraction(Node(Add, [Node(a), Node(b)])),
                  Node(Add, [Node(a), Node(b)]))
+
 
 def test_level_operators():
     #               +
@@ -65,6 +69,7 @@ def test_level_operators():
     # No changes should be made
     assert_equal(Expression._level_operators(Node(Add, [Node(c), Node(a), Node(b)])),
                  Node(Add, [Node(c), Node(a), Node(b)]))
+
 
 def test_simplify_rationals():
     # Numerator is fraction
@@ -95,6 +100,7 @@ def test_simplify_rationals():
     assert_equal(Expression._simplify_rationals(Node(Mul, [Node(a), Node(Div, [Node(b), Node(c)])])),
                  Node(Div, [Node(Mul, [Node(a), Node(b)]), Node(c)]))
 
+
 def test_collect_like_powers():
     #            *
     #        /   |    \
@@ -106,5 +112,10 @@ def test_collect_like_powers():
     a = Symbol('a')
     b = Symbol('b')
     c = Symbol('c')
-    assert_equal(Expression._collect_like_powers(Node(Mul, [Node(Pow, [Node(x), Node(a)]), Node(Pow, [Node(y), Node(b)]), Node(Pow, [Node(x), Node(c)])])),
-                 Node(Mul, [Node(Pow, [Node(x), Node(Add, [Node(a), Node(c)])]), Node(Pow)]))
+
+    tree = Node(Mul, [Node(Pow, [Node(x), Node(a)]), Node(Pow, [Node(y), Node(b)]), Node(Pow, [Node(x), Node(c)])])
+    simple_tree = Node(Mul, [Node(Pow, [Node(y), Node(b)]), Node(Pow, [Node(x), Node(Add, [Node(a), Node(c)])])])
+    assert_equal(Expression._collect_like_powers(tree), simple_tree)
+
+    # No changes should be made
+    assert_equal(Expression._collect_like_powers(simple_tree), simple_tree)

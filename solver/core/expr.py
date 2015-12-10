@@ -72,6 +72,8 @@ class Expression(object):
                         out_queue.append(op_stack.pop())
                         continue
 
+                    break
+
                 op_stack.append(token)
 
             # If token is a left parenthesis...
@@ -195,12 +197,12 @@ class Expression(object):
         for node in ast:
             # If fraction is numerator
             if is_operator(node.value, Div) and is_operator(node.children[0].value, Div):
-                a = node.children[0].children[0]
-                b = node.children[0].children[1]
-                c = node.children[1]
+                a = node.children[0].children[0]  # 2nd fraction numerator
+                b = node.children[0].children[1]  # 2nd fraction denominator
+                c = node.children[1]  # 1st fraction denominator
 
-                node.children[0] = a
-                node.children[1] = Node(Mul, [b, c])
+                node.children[0] = a  # a -> numerator
+                node.children[1] = Node(Mul, [b, c])  # b * c -> denominator
 
             # If fraction is denominator
             elif is_operator(node.value, Div) and is_operator(node.children[1].value, Div):
@@ -235,7 +237,7 @@ class Expression(object):
                 exponentials = in_children(node, Pow)
                 node.children = [x for x in node.children if x not in exponentials]
 
-                if len(exponentials) == 1:
+                if len(exponentials) < 1:
                     break
 
                 for exp in exponentials:
@@ -245,10 +247,10 @@ class Expression(object):
                         break
 
                     final = combine_children(same_base)
+                    del final.children[2::2]
                     powers = final.children[1:]
                     del final.children[1:]
                     final.children.append(Node(Add, powers))
-
                     exponentials = [x for x in exponentials if x not in same_base]
                     exponentials.append(final)
 
