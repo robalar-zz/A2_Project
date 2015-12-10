@@ -36,3 +36,16 @@ def test_rpn_to_ast():
     x = Symbol('x')
     y = Symbol('y')
     assert_equal(Expression._rpn_to_ast([x, y, Add, 5, Mul]), Node(Mul, [Node(Add, [Node(x), Node(y)]), Node(5)]))
+    # Invalid symbol
+    assert_raises(TypeError, Expression._rpn_to_ast, [5, 'd', Add])
+
+def test_remove_subtraction():
+    #        -
+    #      /  \
+    #     a    b
+    a = Symbol('a')
+    b = Symbol('b')
+    assert_equal(Expression._remove_subtraction(Node(Sub, [Node(a), Node(b)])),
+                 Node(Add, [Node(a), Node(Mul, [Node(-1), Node(b)])]))
+    # No changes should be applied
+    assert_equal(Expression._remove_subtraction(Node(Add, [Node(a), Node(b)])), Node(Add, [Node(a), Node(b)]))

@@ -119,7 +119,7 @@ class Expression(object):
                 # ...add it to the stack as a node
                 stack.append(Node(token))
             # If the token is a operator...
-            elif issubclass(token, Operator):
+            elif is_operator(token):
                 # ...get the top two operands...
                 b = stack.pop()
                 a = stack.pop()
