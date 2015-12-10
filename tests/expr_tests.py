@@ -49,3 +49,15 @@ def test_remove_subtraction():
                  Node(Add, [Node(a), Node(Mul, [Node(-1), Node(b)])]))
     # No changes should be applied
     assert_equal(Expression._remove_subtraction(Node(Add, [Node(a), Node(b)])), Node(Add, [Node(a), Node(b)]))
+
+def test_level_operators():
+    #               +
+    #             /  \
+    #            +    c
+    #          /  \
+    #         a    b
+    a = Symbol('a')
+    b = Symbol('b')
+    c = Symbol('c')
+    assert_equal(Expression._level_operators(Node(Add, [Node(Add, [Node(a), Node(b)]), Node(c)])),
+                 Node(Add, [Node(a), Node(b), Node(c)]))
