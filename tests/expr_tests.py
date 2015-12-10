@@ -48,7 +48,8 @@ def test_remove_subtraction():
     assert_equal(Expression._remove_subtraction(Node(Sub, [Node(a), Node(b)])),
                  Node(Add, [Node(a), Node(Mul, [Node(-1), Node(b)])]))
     # No changes should be applied
-    assert_equal(Expression._remove_subtraction(Node(Add, [Node(a), Node(b)])), Node(Add, [Node(a), Node(b)]))
+    assert_equal(Expression._remove_subtraction(Node(Add, [Node(a), Node(b)])),
+                 Node(Add, [Node(a), Node(b)]))
 
 def test_level_operators():
     #               +
@@ -60,4 +61,50 @@ def test_level_operators():
     b = Symbol('b')
     c = Symbol('c')
     assert_equal(Expression._level_operators(Node(Add, [Node(Add, [Node(a), Node(b)]), Node(c)])),
-                 Node(Add, [Node(a), Node(b), Node(c)]))
+                 Node(Add, [Node(c), Node(a), Node(b)]))
+    # No changes should be made
+    assert_equal(Expression._level_operators(Node(Add, [Node(c), Node(a), Node(b)])),
+                 Node(Add, [Node(c), Node(a), Node(b)]))
+
+def test_simplify_rationals():
+    # Numerator is fraction
+    #           Div
+    #          /   \
+    #        Div    c
+    #       /   \
+    #      a     b
+    a = Symbol('a')
+    b = Symbol('b')
+    c = Symbol('c')
+    assert_equal(Expression._simplify_rationals(Node(Div, [Node(Div, [Node(a), Node(b)]), Node(c)])),
+                 Node(Div, [Node(a), Node(Mul, [Node(b), Node(c)])]))
+    # Denominator is fraction
+    #           Div
+    #         /     \
+    #        a      Div
+    #              /   \
+    #             b     c
+    assert_equal(Expression._simplify_rationals(Node(Div, [Node(a), Node(Div, [Node(b), Node(c)])])),
+                 Node(Div, [Node(Mul, [Node(a), Node(b)]), Node(c)]))
+    # Fraction is multiplied
+    #           *
+    #         /  \
+    #        a   Div
+    #           /   \
+    #          b     c
+    assert_equal(Expression._simplify_rationals(Node(Mul, [Node(a), Node(Div, [Node(b), Node(c)])])),
+                 Node(Div, [Node(Mul, [Node(a), Node(b)]), Node(c)]))
+
+def test_collect_like_powers():
+    #            *
+    #        /   |    \
+    #       ^    ^     ^
+    #     /  \  / \   / \
+    #    x   a y   b x   c
+    x = Symbol('x')
+    y = Symbol('y')
+    a = Symbol('a')
+    b = Symbol('b')
+    c = Symbol('c')
+    assert_equal(Expression._collect_like_powers(Node(Mul, [Node(Pow, [Node(x), Node(a)]), Node(Pow, [Node(y), Node(b)]), Node(Pow, [Node(x), Node(c)])])),
+                 Node(Mul, [Node(Pow, [Node(x), Node(Add, [Node(a), Node(c)])]), Node(Pow)]))
