@@ -246,16 +246,20 @@ class Expression(object):
                     if len(same_base) < 2:
                         continue
 
+                    # Merge all the nodes with the same base
                     final = combine_children(same_base)
-                    del final.children[2::2]
+                    # Make a list of powers (excluding the first base)
                     powers = final.children[1:]
-                    del final.children[1:]
+                    # delete the powers
+                    final.children[1:] = []
+                    # remove all the bases from the children
+                    powers = [x for x in powers if x != final.children[0]]
+                    # Sum all the powers together
                     final.children.append(Node(Add, powers))
                     exponentials = [x for x in exponentials if x not in same_base]
                     exponentials.append(final)
 
                 node.children += exponentials
-
         return ast
 
     @staticmethod
@@ -273,7 +277,7 @@ class Expression(object):
 
     ###
 
-    def __init__(self, *tokens):
+    def __init__(self, tokens):
         self.tokens = self.sanitise_unary(tokens)
         self.ast = self.build_ast(self.tokens)
         self.ast = Expression.simplify_ast(self.ast)
