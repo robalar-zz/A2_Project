@@ -107,4 +107,4 @@ def in_children(node, value):
     [9, 9]
     """
 
-    return [child for child in node.children if child.value == value]
+    return [child for child in node.children if child.value == value or isinstance(child.value, value)]
