@@ -251,6 +251,7 @@ class Expression(object):
     @staticmethod
     def _collect_like_powers(ast):
 
+        # x -> x^1
         ast = Expression._symbols_to_power_of_one(ast)
 
         # TODO: Make more elegant?
@@ -279,12 +280,39 @@ class Expression(object):
                     powers = [x for x in powers if x != final.children[0]]
                     # Sum all the powers together
                     final.children.append(Node(Add, powers))
+                    # get rid of exponentials just combined
                     exponentials = [x for x in exponentials if x not in same_base]
+                    # add back to list of exponetials (in case of nested powers)
                     exponentials.append(final)
 
                 node.children += exponentials
 
+        # x^1 -> x
         ast = Expression._remove_powers_of_one(ast)
+
+        return ast
+
+    @staticmethod
+    def _collect_like_addition(ast):
+
+        for node in ast:
+            if is_operator(node.value, Add) and in_children(node, Symbol):
+                symbols = in_children(node, Symbol)
+                node.children = [x for x in node.children if x not in symbols]
+
+                if len(symbols) < 2:
+                    continue
+
+                for sym in symbols:
+                    same_symbol = [other for other in symbols if other == sym]
+
+                    if len(same_symbol) < 2:
+                        continue
+
+                    coefficent = len(same_symbol)
+                    combined_node = Node(Mul, [Node(coefficent), same_symbol[0]])
+                    symbols = [x for x in symbols if x not in same_symbol]
+                    node.children.append(combined_node)
 
         return ast
 
@@ -299,6 +327,7 @@ class Expression(object):
             ast = Expression._level_operators(ast)
             ast = Expression._simplify_rationals(ast)
             ast = Expression._collect_like_powers(ast)
+            ast = Expression._collect_like_addition(ast)
         return ast
 
     ###
