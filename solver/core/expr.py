@@ -229,7 +229,30 @@ class Expression(object):
         return ast
 
     @staticmethod
+    def _symbols_to_power_of_one(ast):
+        for node in ast:
+            if is_operator(node.value, Mul):
+                for child in node.children:
+                    if isinstance(child.value, Symbol):
+                        child.children = [Node(child.value), Node(1)]
+                        child.value = Pow
+
+        return ast
+
+    @staticmethod
+    def _remove_powers_of_one(ast):
+        for node in ast:
+            if is_operator(node.value, Pow) and node.children[1] == Node(1):
+                node.value = node.children[0]
+                node.children = []
+
+        return ast
+
+    @staticmethod
     def _collect_like_powers(ast):
+
+        ast = Expression._symbols_to_power_of_one(ast)
+
         # TODO: Make more elegant?
         for node in ast:
             if is_operator(node.value, Mul) and in_children(node, Pow):
@@ -260,6 +283,9 @@ class Expression(object):
                     exponentials.append(final)
 
                 node.children += exponentials
+
+        ast = Expression._remove_powers_of_one(ast)
+
         return ast
 
     @staticmethod
