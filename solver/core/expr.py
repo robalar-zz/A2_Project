@@ -261,7 +261,7 @@ class Expression(object):
                 exponentials = in_children(node, Pow)
                 node.children = [x for x in node.children if x not in exponentials]
 
-                if len(exponentials) < 1:
+                if len(exponentials) < 2:
                     continue
 
                 for exp in exponentials:
