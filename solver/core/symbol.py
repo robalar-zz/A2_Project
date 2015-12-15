@@ -1,9 +1,9 @@
-from operations import *
+from atoms import Atom
 
 __author__ = 'Rob'
 
 
-class Symbol(object):
+class Symbol(Atom):
     """ Represents an algebraic constant.
 
     An atomic algebraic component that can be used in expressions alongside numbers and other symbols.
@@ -17,10 +17,6 @@ class Symbol(object):
 
     def __repr__(self):
         return self.name
-
-    def __add__(self, other):
-        # TODO: Re-implement
-        pass
 
     def __eq__(self, other):
         """
