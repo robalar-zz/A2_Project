@@ -110,4 +110,13 @@ def in_children(node, value):
 
 
 def instance_in_children(node, cls):
-    return [child for child in node.children if isinstance(child.value, cls)]
+    lst = []
+
+    for child in node.children:
+        try:
+            if isinstance(child.value, cls):
+                lst.append(child)
+        except TypeError:
+            continue
+
+    return lst

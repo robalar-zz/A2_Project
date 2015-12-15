@@ -1,3 +1,5 @@
+from atoms import Number, Integer
+
 class Operator(object):
     """ Base class for all arithmetic operators.
 
@@ -62,8 +64,12 @@ class Add(Operator):
     association = 'left'
     commutative = True
 
-    def __init__(self, *args):
-        pass
+    def __new__(cls, args):
+        if all(isinstance(n, Number) for n in args):
+            total = Integer(0)
+            for n in args:
+                total += n
+            return total
 
 
 class Sub(Operator):

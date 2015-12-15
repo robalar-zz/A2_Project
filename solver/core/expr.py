@@ -2,8 +2,9 @@ from collections import deque
 from copy import deepcopy
 
 from structs import Node, combine_children, in_children, instance_in_children
-from symbol import Symbol, is_operator, is_commutative_operator
+from symbol import Symbol
 from operations import *
+from atoms import Number, Atom
 
 __author__ = 'Robert Hales'
 
@@ -56,7 +57,7 @@ class Expression(object):
 
         for token in tokens:
             # If the token is a number...
-            if isinstance(token, (int, float, Symbol)):
+            if isinstance(token, (int, float, Atom)):
                 out_queue.append(token) # ...add it to the output queue
 
             # If the token is an operator...
@@ -117,7 +118,7 @@ class Expression(object):
 
         for token in rpn_list:
             # If the token is a number or symbol...
-            if isinstance(token, (int, float, Symbol)):
+            if isinstance(token, (int, float, Atom)):
                 # ...add it to the stack as a node
                 stack.append(Node(token))
             # If the token is a operator...
@@ -350,11 +351,15 @@ class Expression(object):
                 node.value = 1
                 node.children = []
 
+            # + x = x, * x = x
             if (is_operator(node.value, Add) or is_operator(node.value, Mul)) and len(node.children) == 1:
                 node.value = node.children[0].value
                 node.children = node.children[0].children
 
-
+            if is_operator(node.value) and len(instance_in_children(node, Number)) > 1:
+                final_val = node.value([x.value for x in instance_in_children(node, Number)])
+                node.children = [child for child in node.children if not isinstance(child.value, Number)]
+                node.children.append(Node(final_val))
         return ast
 
     @staticmethod
