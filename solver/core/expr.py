@@ -1,7 +1,7 @@
 from collections import deque
 from copy import deepcopy
 
-from structs import Node, combine_children, in_children
+from structs import Node, combine_children, in_children, instance_in_children
 from symbol import Symbol, is_operator, is_commutative_operator
 from operations import *
 
@@ -259,10 +259,11 @@ class Expression(object):
             if is_operator(node.value, Mul) and in_children(node, Pow):
 
                 exponentials = in_children(node, Pow)
-                node.children = [x for x in node.children if x not in exponentials]
 
                 if len(exponentials) < 2:
                     continue
+
+                node.children = [x for x in node.children if x not in exponentials]
 
                 for exp in exponentials:
                     same_base = [other for other in exponentials if other.children[0] == exp.children[0]]
@@ -296,12 +297,13 @@ class Expression(object):
     def _collect_like_addition(ast):
 
         for node in ast:
-            if is_operator(node.value, Add) and in_children(node, Symbol):
-                symbols = in_children(node, Symbol)
-                node.children = [x for x in node.children if x not in symbols]
+            if is_operator(node.value, Add) and instance_in_children(node, Symbol):
+                symbols = instance_in_children(node, Symbol)
 
                 if len(symbols) < 2:
                     continue
+
+                node.children = [x for x in node.children if x not in symbols]
 
                 for sym in symbols:
                     same_symbol = [other for other in symbols if other == sym]
@@ -317,6 +319,45 @@ class Expression(object):
         return ast
 
     @staticmethod
+    def fold_constants(ast):
+
+        for node in ast:
+            # x * 0 = 0
+            if is_operator(node.value, Mul) and in_children(node, 0):
+                node.value = 0
+                node.children = []
+
+            # x * 1 = x
+            if is_operator(node.value, Mul) and in_children(node, 1):
+                node.children = [x for x in node.children if x.value != 1]
+
+            # y + x + 0 = x + y
+            if is_operator(node.value, Add) and in_children(node, 0):
+                node.children = [x for x in node.children if x.value != 0]
+
+            # x^0 = 1, when x != 0
+            if is_operator(node.value, Pow) and node.children[0].value != 0 and node.children[1].value == 0:
+                node.value = 1
+                node.children = []
+
+            # 0^x = 0, when x != 0
+            if is_operator(node.value, Pow) and node.children[0].value == 0 and node.children[1].value != 0:
+                node.value = 0
+                node.children = []
+
+            # 1^x = 1
+            if is_operator(node.value, Pow) and node.children[0].value == 1:
+                node.value = 1
+                node.children = []
+
+            if (is_operator(node.value, Add) or is_operator(node.value, Mul)) and len(node.children) == 1:
+                node.value = node.children[0].value
+                node.children = node.children[0].children
+
+
+        return ast
+
+    @staticmethod
     def simplify_ast(ast):
         old_ast = None
 
@@ -328,6 +369,7 @@ class Expression(object):
             ast = Expression._simplify_rationals(ast)
             ast = Expression._collect_like_powers(ast)
             ast = Expression._collect_like_addition(ast)
+            ast = Expression.fold_constants(ast)
         return ast
 
     ###
