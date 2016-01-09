@@ -34,6 +34,8 @@ def split_symbols(tokens, local_dict, global_dict):
             except KeyError:
                 for char in token_value:
                     result.append((token.NAME, char))
+        else:
+            result.append((token_number, token_value))
 
     return result
 
@@ -133,5 +135,5 @@ def parse(s, local_dictionary, global_dictionary, transformations):
 from solver.core.symbol import Symbol
 from solver.core.atoms import Integer
 
-c = parse('xyz*pi', locals(), globals(), [split_symbols, create_symbols, create_numbers, implied_multiplication])
+c = parse('5x', locals(), globals(), [split_symbols, create_symbols, create_numbers, implied_multiplication])
 print c
