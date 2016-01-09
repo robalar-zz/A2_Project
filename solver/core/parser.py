@@ -1,15 +1,15 @@
 from symbol import Symbol
 
-from tokenize import generate_tokens
+from tokenize import generate_tokens, untokenize
 import token
 from StringIO import StringIO
 from keyword import iskeyword
-
+import re
 
 def tokenize(s):
-
+    usr_inp = StringIO(s.strip())
     result = []
-    for token_num, token_val, _, _, _ in generate_tokens(StringIO(s).readline):
+    for token_num, token_val, _, _, _ in generate_tokens(usr_inp.readline):
         result.append((token_num, token_val))
 
     return result
@@ -53,7 +53,7 @@ def create_symbols(tokens, local_dict, global_dict):
             result.extend([
                 (token.NAME, 'Symbol'),
                 (token.OP, '('),
-                (token.NAME, tok_value),
+                (token.NAME, repr(tok_value)),
                 (token.OP, ')')
             ])
         else:
@@ -65,3 +65,28 @@ def create_symbols(tokens, local_dict, global_dict):
     return result
 
 
+def implied_multiplication(tokens, local_dict, global_dict):
+
+    result = []
+
+    for tok, next_tok in zip(tokens, tokens[1:]):
+        result.append(tok)
+        if tok[0] == next_tok[0] == token.OP and tok[1] == ')' and next_tok[1] == '(':
+            result.append((token.OP, '*'))
+
+    return result
+
+def parse(s, local_dictionary, global_dictionary, transformations):
+
+    tokens = tokenize(s)
+
+    for transform in transformations:
+        tokens = transform(tokens, local_dictionary, global_dictionary)
+
+    code = untokenize(tokens)
+    compiled = compile(code, '<string>', 'eval')
+    return eval(compiled, global_dictionary, local_dictionary)
+
+from solver.core.symbol import Symbol
+
+print parse('(x)(y)', locals(), globals(), [create_symbols, implied_multiplication])
