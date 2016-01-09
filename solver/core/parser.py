@@ -4,7 +4,7 @@ from tokenize import generate_tokens, untokenize
 import token
 from StringIO import StringIO
 from keyword import iskeyword
-import re
+import unicodedata
 
 def tokenize(s):
     usr_inp = StringIO(s.strip())
@@ -20,6 +20,22 @@ def is_function(token_str, local_dict, global_dict):
         func = global_dict.get(token_str)
 
     return callable(func) and not isinstance(func, Symbol)
+
+
+def split_symbols(tokens, local_dict, global_dict):
+
+    result = []
+
+    for token_number, token_value in tokens:
+        if token_number == token.NAME:
+            try:
+                unicodedata.lookup('GREEK SMALL LETTER ' + token_value)
+                result.append((token_number, token_value))
+            except KeyError:
+                for char in token_value:
+                    result.append((token.NAME, char))
+
+    return result
 
 
 def create_symbols(tokens, local_dict, global_dict):
@@ -65,16 +81,42 @@ def create_symbols(tokens, local_dict, global_dict):
     return result
 
 
-def implied_multiplication(tokens, local_dict, global_dict):
+def create_numbers(tokens, local_dict, global_dict):
 
     result = []
 
+    for token_number, token_value in tokens:
+        if token_number == token.NUMBER:
+            if '.' in token_value:
+                pass
+            else:
+                result.extend([
+                    (token.NAME, 'Integer'),
+                    (token.OP, '('),
+                    (token.NUMBER, token_value),
+                    (token.OP, ')')
+                ])
+        else:
+            result.append((token_number, token_value))
+
+    return result
+
+
+def implied_multiplication(tokens, local_dict, global_dict):
+
+    result = []
+    tokens.append((None, None))
+
     for tok, next_tok in zip(tokens, tokens[1:]):
         result.append(tok)
+        # Left parenthesis next to right parenthesis
         if tok[0] == next_tok[0] == token.OP and tok[1] == ')' and next_tok[1] == '(':
+            result.append((token.OP, '*'))
+        if tok[0] == token.OP and tok[1] == ')' and next_tok[0] == token.NAME:
             result.append((token.OP, '*'))
 
     return result
+
 
 def parse(s, local_dictionary, global_dictionary, transformations):
 
@@ -84,9 +126,12 @@ def parse(s, local_dictionary, global_dictionary, transformations):
         tokens = transform(tokens, local_dictionary, global_dictionary)
 
     code = untokenize(tokens)
+    print code
     compiled = compile(code, '<string>', 'eval')
     return eval(compiled, global_dictionary, local_dictionary)
 
 from solver.core.symbol import Symbol
+from solver.core.atoms import Integer
 
-print parse('(x)(y)', locals(), globals(), [create_symbols, implied_multiplication])
+c = parse('xyz*pi', locals(), globals(), [split_symbols, create_symbols, create_numbers, implied_multiplication])
+print c
