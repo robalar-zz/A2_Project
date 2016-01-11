@@ -1,5 +1,3 @@
-from symbol import Symbol
-
 from tokenize import generate_tokens, untokenize
 import token
 from StringIO import StringIO
@@ -120,7 +118,17 @@ def implied_multiplication(tokens, local_dict, global_dict):
     return result
 
 
-def parse(s, local_dictionary, global_dictionary, transformations):
+transforms = [split_symbols, create_symbols, create_numbers, implied_multiplication]
+
+
+def parse(s, local_dictionary=None, global_dictionary=None, transformations=transforms):
+
+    if local_dictionary is None:
+        local_dictionary = {}
+
+    if global_dictionary is None:
+        global_dictionary = {}  # FIXME: Temp fix
+        global_dictionary = __import__('solver', global_dictionary, local_dictionary, ['*']).__dict__
 
     tokens = tokenize(s)
 
@@ -128,12 +136,8 @@ def parse(s, local_dictionary, global_dictionary, transformations):
         tokens = transform(tokens, local_dictionary, global_dictionary)
 
     code = untokenize(tokens)
-    print code
     compiled = compile(code, '<string>', 'eval')
     return eval(compiled, global_dictionary, local_dictionary)
 
-from solver.core.symbol import Symbol
-from solver.core.atoms import Integer
-
-c = parse('5x', locals(), globals(), [split_symbols, create_symbols, create_numbers, implied_multiplication])
+c = parse('5*5*5')
 print c

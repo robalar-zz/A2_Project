@@ -30,8 +30,11 @@ class Pow(Operator):
     association = 'right'
     commutative = False
 
-    def __init__(self, left, right):
-        pass
+    def __new__(cls, base, exponent):
+        obj = super(Pow, cls).__new__(cls)
+        obj.base = base
+        obj.exponent = exponent
+        return obj
 
 
 class Mul(Operator):
@@ -41,9 +44,10 @@ class Mul(Operator):
     association = 'left'
     commutative = True
 
-    def __init__(self, left, right):
-        pass
-
+    def __new__(cls, *args):
+        obj = super(Mul, cls).__new__(cls)
+        obj.args = args
+        return obj
 
 
 class Div(Operator):
@@ -53,8 +57,10 @@ class Div(Operator):
     association = 'left'
     commutative = False
 
-    def __init__(self, left, right):
-        pass
+    def __new__(cls, numerator, denominator):
+        return numerator * denominator ** -1
+
+
 
 
 class Add(Operator):
@@ -64,12 +70,10 @@ class Add(Operator):
     association = 'left'
     commutative = True
 
-    def __new__(cls, args):
-        if all(isinstance(n, Number) for n in args):
-            total = Integer(0)
-            for n in args:
-                total += n
-            return total
+    def __new__(cls, *args):
+        obj = super(Mul, cls).__new__(cls)
+        obj.args = args
+        return obj
 
 
 class Sub(Operator):
@@ -79,9 +83,8 @@ class Sub(Operator):
     association = 'left'
     commutative = False
 
-    def __init__(self, left, right):
-        pass
-
+    def __new__(cls, left, right):
+        return left + (-1 * right)
 
 class UMin(Operator):
 
