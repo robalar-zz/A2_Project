@@ -1,4 +1,5 @@
 from .atoms import Number, Atom
+from .symbol import Symbol
 
 from operator import mul
 
@@ -43,6 +44,9 @@ class Pow(Operator):
 
         obj.args = list(args)
 
+        if obj.args[1] == Number(1):
+            return obj.args[0]
+
         # If all the arguments are numbers just evaluate
         if all(isinstance(arg, Number) for arg in args):
             return args[0] ** args[1]
@@ -65,18 +69,21 @@ class Mul(Operator):
         if all(isinstance(arg, Number) for arg in args):
             return reduce(mul, args, Number(1))
 
+        # Folding nested Mul's
         for item in [arg for arg in args if isinstance(arg, Mul)]:
             obj.args += item.args
             obj.args.remove(item)
 
-        powers = [power for power in args if isinstance(power, Pow)]
+        # Simplifying powers
+        obj.args = [x**Number(1) if isinstance(x, Symbol) else x for x in obj.args]  # x -> x**1
+
+        powers = [power for power in obj.args if isinstance(power, Pow)]
         obj.args = [x for x in obj.args if x not in powers]
         for power in powers:
             same_base = [other for other in powers if other.args[0] == power.args[0]]
 
             if len(same_base) < 2:
                 continue
-
 
             final = Pow(same_base[0].args[0], Add(*[x.args[1] for x in same_base]))
 
