@@ -25,6 +25,9 @@ class Atom(object):
         return Div(self, other)
 
 
+class Undefined(Atom):
+    pass
+
 class Number(Atom):
 
     def __new__(cls, *args):

@@ -1,4 +1,4 @@
-from .atoms import Number, Atom
+from .atoms import Number, Atom, Undefined
 from .symbol import Symbol
 
 from operator import mul
@@ -44,12 +44,20 @@ class Pow(Operator):
 
         obj.args = list(args)
 
+        # x ** 1 = x
         if obj.args[1] == Number(1):
             return obj.args[0]
 
+        if obj.args[0] == obj.args[1] == Number(0):
+            return Undefined # FIXME
+
         # If all the arguments are numbers just evaluate
-        if all(isinstance(arg, Number) for arg in args):
+        if all(isinstance(arg, Number) for arg in obj.args):
             return args[0] ** args[1]
+
+        # x**0 = 1, x != 0
+        if obj.args[1] == Number(0) and obj.args[0] != Number(0):
+            return Number(1)
 
         return obj
 
@@ -68,6 +76,14 @@ class Mul(Operator):
 
         if all(isinstance(arg, Number) for arg in args):
             return reduce(mul, args, Number(1))
+
+        # x * 0 = 0
+        if Number(0) in obj.args:
+            return Number(0)
+
+        # x * 1 = x
+        if Number(1) in obj.args:
+            obj.args.remove(Number(1))
 
         # Folding nested Mul's
         for item in [arg for arg in args if isinstance(arg, Mul)]:
@@ -125,6 +141,10 @@ class Add(Operator):
         for item in [arg for arg in args if isinstance(arg, Add)]:
             obj.args += item.args
             obj.args.remove(item)
+
+        # x + 0 = x
+        if Number(0) in obj.args:
+            obj.args.remove(Number(0))
 
         return obj
 
