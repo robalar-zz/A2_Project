@@ -1,6 +1,8 @@
-from atoms import Number, Integer
+from .atoms import Number, Atom
 
-class Operator(object):
+from operator import mul
+
+class Operator(Atom):
     """ Base class for all arithmetic operators.
 
     All operators should be derived from this class so they can be identified as an operator.
@@ -22,6 +24,9 @@ class Operator(object):
     association = None
     commutative = False
 
+    def __repr__(self):
+        return '{}({})'.format(self.__class__.__name__ , self.args)
+
 
 class Pow(Operator):
 
@@ -36,7 +41,12 @@ class Pow(Operator):
         if len(args) != 2:
             raise ValueError('Pow must have 2 args (base, exponent)')
 
-        obj.args = args
+        obj.args = list(args)
+
+        # If all the arguments are numbers just evaluate
+        if all(isinstance(arg, Number) for arg in args):
+            return args[0] ** args[1]
+
         return obj
 
 
@@ -49,7 +59,34 @@ class Mul(Operator):
 
     def __new__(cls, *args):
         obj = super(Mul, cls).__new__(cls)
-        obj.args = args
+
+        obj.args = list(args)
+
+        if all(isinstance(arg, Number) for arg in args):
+            return reduce(mul, args, Number(1))
+
+        for item in [arg for arg in args if isinstance(arg, Mul)]:
+            obj.args += item.args
+            obj.args.remove(item)
+
+        powers = [power for power in args if isinstance(power, Pow)]
+        obj.args = [x for x in obj.args if x not in powers]
+        for power in powers:
+            same_base = [other for other in powers if other.args[0] == power.args[0]]
+
+            if len(same_base) < 2:
+                continue
+
+
+            final = Pow(same_base[0].args[0], Add(*[x.args[1] for x in same_base]))
+
+            powers = [x for x in powers if x not in same_base]
+
+            powers.append(final)
+
+        obj.args += powers
+
+
         return obj
 
 
@@ -73,7 +110,15 @@ class Add(Operator):
 
     def __new__(cls, *args):
         obj = super(Add, cls).__new__(cls)
-        obj.args = args
+        obj.args = list(args)
+
+        if all(isinstance(arg, Number) for arg in args):
+            return sum(args, Number(0))
+
+        for item in [arg for arg in args if isinstance(arg, Add)]:
+            obj.args += item.args
+            obj.args.remove(item)
+
         return obj
 
 

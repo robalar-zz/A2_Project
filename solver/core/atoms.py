@@ -26,7 +26,15 @@ class Atom(object):
 
 
 class Number(Atom):
-    pass
+
+    def __new__(cls, *args):
+
+        if len(args) == 1:
+
+            if isinstance(args[0], Number):
+                return args[0]
+            if isinstance(args[0], int):
+                return super(Number, cls).__new__(Integer)
 
 
 class Integer(Number):
@@ -37,9 +45,26 @@ class Integer(Number):
     def __add__(self, other):
         if isinstance(other, Integer):
             return Integer(self.value + other.value)
+        else:
+            Atom.__mul__(other)
 
     def __iadd__(self, other):
         return self + other
+
+    def __mul__(self, other):
+        if isinstance(other, Integer):
+            return Integer(self.value * other.value)
+        else:
+            Atom.__mul__(other)
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
+    def __pow__(self, power, modulo=None):
+        if isinstance(power, Integer):
+            return Integer(self.value ** power.value)
+        else:
+            Atom.__mul__(power)
 
     def __repr__(self):
         return str(self.value)
