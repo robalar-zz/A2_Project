@@ -30,10 +30,13 @@ class Pow(Operator):
     association = 'right'
     commutative = False
 
-    def __new__(cls, base, exponent):
+    def __new__(cls, *args):
         obj = super(Pow, cls).__new__(cls)
-        obj.base = base
-        obj.exponent = exponent
+
+        if len(args) != 2:
+            raise ValueError('Pow must have 2 args (base, exponent)')
+
+        obj.args = args
         return obj
 
 
@@ -61,8 +64,6 @@ class Div(Operator):
         return numerator * denominator ** -1
 
 
-
-
 class Add(Operator):
 
     symbol = '+'
@@ -71,7 +72,7 @@ class Add(Operator):
     commutative = True
 
     def __new__(cls, *args):
-        obj = super(Mul, cls).__new__(cls)
+        obj = super(Add, cls).__new__(cls)
         obj.args = args
         return obj
 
