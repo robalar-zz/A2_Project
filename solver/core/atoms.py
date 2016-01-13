@@ -2,6 +2,12 @@ class Atom(object):
     """ Base class for any atomic type
     """
 
+    def __pos__(self):
+        return self
+
+    def __neg__(self):
+        return -1 * self
+
     def __add__(self, other):
         from .operations import Add
         return Add(self, other)
