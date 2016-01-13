@@ -104,6 +104,10 @@ class Mul(Operator):
 
         obj.args += powers
 
+        # If there's only one arg return that
+        if len(obj.args) == 1:
+            return obj.args[0]
+
         return obj
 
 
@@ -159,6 +163,7 @@ class Add(Operator):
 
         obj.args.extend(symbols)
 
+        # If there's only one arg return that
         if len(obj.args) == 1:
             return obj.args[0]
 
