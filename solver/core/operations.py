@@ -25,9 +25,6 @@ class Operator(Atom):
     association = None
     commutative = False
 
-    def __repr__(self):
-        return '{}({})'.format(self.__class__.__name__ , self.args)
-
 
 class Pow(Operator):
 
@@ -47,9 +44,6 @@ class Pow(Operator):
         # x ** 1 = x
         if obj.args[1] == Number(1):
             return obj.args[0]
-
-        if obj.args[0] == obj.args[1] == Number(0):
-            return Undefined # FIXME
 
         # If all the arguments are numbers just evaluate
         if all(isinstance(arg, Number) for arg in obj.args):
@@ -74,9 +68,6 @@ class Mul(Operator):
 
         obj.args = list(args)
 
-        if all(isinstance(arg, Number) for arg in args):
-            return reduce(mul, args, Number(1))
-
         # x * 0 = 0
         if Number(0) in obj.args:
             return Number(0)
@@ -89,6 +80,10 @@ class Mul(Operator):
         for item in [arg for arg in args if isinstance(arg, Mul)]:
             obj.args += item.args
             obj.args.remove(item)
+
+        # If all the arguments are numbers just evaluate
+        if all(isinstance(arg, Number) for arg in args):
+            return reduce(mul, args, Number(1))
 
         # Simplifying powers
         obj.args = [x**Number(1) if isinstance(x, Symbol) else x for x in obj.args]  # x -> x**1
@@ -108,7 +103,6 @@ class Mul(Operator):
             powers.append(final)
 
         obj.args += powers
-
 
         return obj
 
@@ -135,16 +129,38 @@ class Add(Operator):
         obj = super(Add, cls).__new__(cls)
         obj.args = list(args)
 
-        if all(isinstance(arg, Number) for arg in args):
-            return sum(args, Number(0))
-
+        # Fold nested Add's
         for item in [arg for arg in args if isinstance(arg, Add)]:
             obj.args += item.args
             obj.args.remove(item)
 
+        # If all args are numbers just evaluate
+        if all(isinstance(arg, Number) for arg in args):
+            return sum(args, Number(0))
+
         # x + 0 = x
         if Number(0) in obj.args:
             obj.args.remove(Number(0))
+
+        # Simplifying symbol addition
+        symbols = [sym for sym in obj.args if isinstance(sym, Symbol)]
+        obj.args = [x for x in obj.args if x not in symbols]
+
+        for symbol in symbols:
+            same_symbols = [other for other in symbols if other == symbol]
+
+            if len(same_symbols) < 2:
+                continue
+
+            coefficient = len(same_symbols)
+            final = coefficient * symbol
+            symbols = [x for x in symbols if x not in same_symbols]
+            symbols.append(final)
+
+        obj.args.extend(symbols)
+
+        if len(obj.args) == 1:
+            return obj.args[0]
 
         return obj
 
