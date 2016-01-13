@@ -24,6 +24,12 @@ class Atom(object):
         from .operations import Div
         return Div(self, other)
 
+    def __repr__(self):
+        try:
+            return '{}({})'.format(self.__class__.__name__, self.args)
+        except AttributeError:
+            return '{}'.format(self.__class__.__name__)
+
 
 class Undefined(Atom):
     pass
@@ -64,13 +70,14 @@ class Integer(Number):
         return self.__mul__(other)
 
     def __pow__(self, power, modulo=None):
+
         if isinstance(power, Integer):
+            if power.value == 0 and self.value == 0:
+                return Undefined()
+
             return Integer(self.value ** power.value)
         else:
             Atom.__mul__(power)
-
-    def __repr__(self):
-        return str(self.value)
 
     def __eq__(self, other):
 
