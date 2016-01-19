@@ -1,9 +1,9 @@
-from .atoms import Number, Atom, Undefined
+from .atoms import Number, Atom
 from .symbol import Symbol
 
 from operator import mul
 
-class Operator(Atom):
+class Operator(object):
     """ Base class for all arithmetic operators.
 
     All operators should be derived from this class so they can be identified as an operator.
@@ -25,6 +25,39 @@ class Operator(Atom):
     association = None
     commutative = False
 
+    def __new__(cls, *args):
+
+        obj = super(Operator, cls).__new__(cls)
+
+        # FIXME
+        # python_nums = [i for i in args if isinstance(i, (float, int, long))]
+        # args = [i for i in args if i not in python_nums]
+
+        # print python_nums
+
+        return obj
+
+    # TODO: Find a less 'hacky' way to do this?
+    def __add__(self, other):
+        return Add(self, other)
+
+    def __mul__(self, other):
+        return Mul(self, other)
+
+    def __repr__(self):
+        return '{}({})'.format(self.__class__.__name__, self.args)
+
+    def get_atoms(self, type=Atom):
+        return [arg for arg in self.args if isinstance(arg, type)]
+
+
+class Eq(Operator):
+
+    symbol = '='
+
+    def __new__(cls, *args):
+        pass
+
 
 class Pow(Operator):
 
@@ -34,7 +67,7 @@ class Pow(Operator):
     commutative = False
 
     def __new__(cls, *args):
-        obj = super(Pow, cls).__new__(cls)
+        obj = super(Pow, cls).__new__(cls, *args)
 
         if len(args) != 2:
             raise ValueError('Pow must have 2 args (base, exponent)')
@@ -64,8 +97,7 @@ class Mul(Operator):
     commutative = True
 
     def __new__(cls, *args):
-        obj = super(Mul, cls).__new__(cls)
-
+        obj = super(Mul, cls).__new__(cls, *args)
         obj.args = list(args)
 
         # x * 0 = 0
@@ -102,13 +134,16 @@ class Mul(Operator):
 
             powers.append(final)
 
-        obj.args += powers
+        obj.args.extend(powers)
 
         # If there's only one arg return that
         if len(obj.args) == 1:
             return obj.args[0]
 
         return obj
+
+    def get_coefficient(self):
+        return [i for i in self.args if isinstance(i, Number)][0]
 
 
 class Div(Operator):
@@ -163,6 +198,27 @@ class Add(Operator):
 
         obj.args.extend(symbols)
 
+        # Simplifying multiplied symbols
+        muls = [op for op in obj.args if isinstance(op, Mul) and (any(isinstance(sym, Symbol) for sym in op.args))]
+        obj.args = [x for x in obj.args if x not in muls]
+
+        for multiplication in muls:
+            same_symbols = [other for other in muls if other.get_atoms(Symbol) == multiplication.get_atoms(Symbol)]
+
+            if len(same_symbols) < 2:
+                continue
+
+            coefficients = [m.get_coefficient() for m in same_symbols]
+
+            final_coeff = sum(coefficients, Number(0))
+            final_symbols = same_symbols[0].get_atoms(Symbol)
+            final = Mul(final_coeff, *final_symbols)
+
+            muls = [x for x in muls if x not in same_symbols]
+            muls.append(final)
+
+        obj.args.extend(muls)
+
         # If there's only one arg return that
         if len(obj.args) == 1:
             return obj.args[0]
@@ -180,12 +236,6 @@ class Sub(Operator):
     def __new__(cls, left, right):
         return left + (-1 * right)
 
-class UMin(Operator):
-
-    symbol = '-u'
-    precedence = 4
-    association = 'right'
-    commutative = False
 
 
 def is_operator(token, op=Operator):
