@@ -1,7 +1,12 @@
 from .atoms import Number, Atom
 from .symbol import Symbol
+from .expr import Expression
 
 from operator import mul
+
+# TODO: Separate into functions?
+# TODO: Separate into different files?
+
 
 class Operator(object):
     """ Base class for all arithmetic operators.
@@ -28,12 +33,7 @@ class Operator(object):
     def __new__(cls, *args):
 
         obj = super(Operator, cls).__new__(cls)
-
-        # FIXME
-        # python_nums = [i for i in args if isinstance(i, (float, int, long))]
-        # args = [i for i in args if i not in python_nums]
-
-        # print python_nums
+        obj.args = list(args)
 
         return obj
 
@@ -51,7 +51,7 @@ class Operator(object):
         return [arg for arg in self.args if isinstance(arg, type)]
 
 
-class Eq(Operator):
+class Eq(Operator, Expression):
 
     symbol = '='
 
@@ -59,7 +59,7 @@ class Eq(Operator):
         pass
 
 
-class Pow(Operator):
+class Pow(Operator, Expression):
 
     symbol = '**'
     precedence = 4
@@ -89,7 +89,7 @@ class Pow(Operator):
         return obj
 
 
-class Mul(Operator):
+class Mul(Operator, Expression):
 
     symbol = '*'
     precedence = 3
@@ -146,7 +146,7 @@ class Mul(Operator):
         return [i for i in self.args if isinstance(i, Number)][0]
 
 
-class Div(Operator):
+class Div(Operator, Expression):
 
     symbol = '/'
     precedence = 3
@@ -157,7 +157,7 @@ class Div(Operator):
         return numerator * denominator ** -1
 
 
-class Add(Operator):
+class Add(Operator, Expression):
 
     symbol = '+'
     precedence = 2
@@ -198,7 +198,10 @@ class Add(Operator):
 
         obj.args.extend(symbols)
 
-        # Simplifying multiplied symbols
+        # Simplifying multiplied symbols FIXME
+        """
+        obj.args = [Number(1)*x if isinstance(x, Symbol) else x for x in obj.args]
+
         muls = [op for op in obj.args if isinstance(op, Mul) and (any(isinstance(sym, Symbol) for sym in op.args))]
         obj.args = [x for x in obj.args if x not in muls]
 
@@ -217,7 +220,7 @@ class Add(Operator):
             muls = [x for x in muls if x not in same_symbols]
             muls.append(final)
 
-        obj.args.extend(muls)
+        obj.args.extend(muls)"""
 
         # If there's only one arg return that
         if len(obj.args) == 1:

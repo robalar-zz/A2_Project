@@ -27,18 +27,23 @@ class Atom(object):
         return Pow(self, power)
 
     def __div__(self, other):
-        from .operations import Div
-        return Div(self, other)
+        from .operations import Mul, Pow
+        return Mul(self, Pow(other, -1))
+
+    def __sub__(self, other):
+        from .operations import Add, Mul
+        return Add(self, Mul(-1, other))
+
+    def __rsub__(self, other):
+        return self.__sub__(other)
 
     def __repr__(self):
-        try:
-            return '{}({})'.format(self.__class__.__name__, self.args)
-        except AttributeError:
-            return '{}'.format(self.__class__.__name__)
+        return '{}'.format(self.__class__.__name__)
 
 
 class Undefined(Atom):
     pass
+
 
 class Number(Atom):
 
@@ -50,6 +55,9 @@ class Number(Atom):
                 return args[0]
             if isinstance(args[0], int):
                 return super(Number, cls).__new__(Integer)
+
+    def __repr__(self):
+        return str(self.value)
 
 
 class Integer(Number):
