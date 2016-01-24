@@ -150,17 +150,6 @@ class Mul(Operator, Expression):
         return [i for i in self.args if isinstance(i, Number)][0]
 
 
-class Div(Operator, Expression):
-
-    symbol = '/'
-    precedence = 3
-    association = 'left'
-    commutative = False
-
-    def __new__(cls, numerator, denominator):
-        return numerator * denominator ** -1
-
-
 class Add(Operator, Expression):
 
     symbol = '+'
@@ -230,55 +219,3 @@ class Add(Operator, Expression):
             return obj.args[0]
 
         return obj
-
-
-class Sub(Operator):
-
-    symbol = '-'
-    precedence = 2
-    association = 'left'
-    commutative = False
-
-    def __new__(cls, left, right):
-        return left + (-1 * right)
-
-
-
-def is_operator(token, op=Operator):
-    """ Checks whether a token is an operator or not.
-
-    Args:
-        token: Token to be tested.
-        op: Operator to test token against, defaults to Operator base class.
-    Returns:
-        Bool indicating whether token was an operator.
-
-    >>> is_operator(Mul)
-    True
-    >>> is_operator('x')
-    False
-    >>> is_operator(Div, Div)
-    True
-    >>> is_operator(Pow, Add)
-    False
-    """
-
-    try:
-        if not issubclass(token, op):
-            return False
-        return True
-    except TypeError:
-        # token is not a class (or operator)
-        return False
-
-
-def is_commutative_operator(token):
-    """
-    >>> is_commutative_operator(Mul)
-    True
-    >>> is_commutative_operator('x')
-    False
-    >>> is_commutative_operator(Pow)
-    False
-    """
-    return is_operator(token) and token.commutative
