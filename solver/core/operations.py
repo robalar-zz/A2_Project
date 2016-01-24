@@ -31,9 +31,10 @@ class Operator(object):
     commutative = False
 
     def __new__(cls, *args):
-
         obj = super(Operator, cls).__new__(cls)
         obj.args = list(args)
+
+        obj.args = [Number(x) if isinstance(x, (int, long, float)) else x for x in obj.args]
 
         return obj
 
@@ -46,6 +47,12 @@ class Operator(object):
 
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, self.args)
+
+    def __eq__(self, other):
+        if self.__class__ == other.__class__ and self.args == other.args:
+            return True
+        else:
+            return False
 
     def get_atoms(self, type=Atom):
         return [arg for arg in self.args if isinstance(arg, type)]
@@ -72,8 +79,6 @@ class Pow(Operator, Expression):
         if len(args) != 2:
             raise ValueError('Pow must have 2 args (base, exponent)')
 
-        obj.args = list(args)
-
         # x ** 1 = x
         if obj.args[1] == Number(1):
             return obj.args[0]
@@ -97,16 +102,15 @@ class Mul(Operator, Expression):
     commutative = True
 
     def __new__(cls, *args):
-        obj = super(Mul, cls).__new__(cls, *args)
-        obj.args = list(args)
+        obj = Operator.__new__(cls, *args)
 
         # x * 0 = 0
-        if Number(0) in obj.args:
-            return Number(0)
+        #if Number(0) in obj.args:
+            #return Number(0)
 
         # x * 1 = x
-        if Number(1) in obj.args:
-            obj.args.remove(Number(1))
+        #if Number(1) in obj.args:
+            #obj.args.remove(Number(1))
 
         # Folding nested Mul's
         for item in [arg for arg in args if isinstance(arg, Mul)]:
@@ -165,8 +169,7 @@ class Add(Operator, Expression):
     commutative = True
 
     def __new__(cls, *args):
-        obj = super(Add, cls).__new__(cls)
-        obj.args = list(args)
+        obj = Operator.__new__(cls, *args)
 
         # Fold nested Add's
         for item in [arg for arg in args if isinstance(arg, Add)]:
@@ -178,8 +181,8 @@ class Add(Operator, Expression):
             return sum(args, Number(0))
 
         # x + 0 = x
-        if Number(0) in obj.args:
-            obj.args.remove(Number(0))
+        #if Number(0) in obj.args:
+            #obj.args.remove(Number(0))
 
         # Simplifying symbol addition
         symbols = [sym for sym in obj.args if isinstance(sym, Symbol)]
