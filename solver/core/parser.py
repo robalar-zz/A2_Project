@@ -88,7 +88,7 @@ def create_numbers(tokens, local_dict, global_dict):
     for token_number, token_value in tokens:
         if token_number == token.NUMBER:
             if '.' in token_value:
-                pass
+                raise NotImplementedError #TODO: Implement!
             else:
                 result.extend([
                     (token.NAME, 'Integer'),
@@ -138,6 +138,3 @@ def parse(s, local_dictionary=None, global_dictionary=None, transformations=tran
     code = untokenize(tokens)
     compiled = compile(code, '<string>', 'eval')
     return eval(compiled, global_dictionary, local_dictionary)
-
-c = parse('5*5*5')
-print c
