@@ -46,7 +46,7 @@ class Operator(object):
         return Mul(self, other)
 
     def __repr__(self):
-        return '{}({})'.format(self.__class__.__name__, self.args)
+        return '{}({})'.format(self.__class__.__name__, str(self.args)[1:-1])
 
     def __eq__(self, other):
         if self.__class__ == other.__class__ and self.args == other.args:
@@ -63,7 +63,7 @@ class Eq(Operator, Expression):
     symbol = '='
 
     def __new__(cls, *args):
-        pass
+        raise NotImplementedError
 
 
 class Pow(Operator, Expression):
