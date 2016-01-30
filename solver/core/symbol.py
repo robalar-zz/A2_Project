@@ -1,4 +1,5 @@
-from atoms import Atom
+from .atoms import Atom
+from .expr import Expression
 
 __author__ = 'Rob'
 
@@ -12,21 +13,22 @@ class Symbol(Atom):
         name: A string identifier that is unique
     """
 
-    def __init__(self, name):
-        self.name = name
+    __slots__ = ['name']
+
+    def __new__(cls, name):
+        obj = Atom.__new__(cls)
+
+        if not isinstance(name, str):
+            raise TypeError('A symbols name must be a string not {}'.format(type(name)))
+
+        obj.name = name
+
+        return obj
 
     def __repr__(self):
         return self.name
 
     def __eq__(self, other):
-        """
-        >>> Symbol('x') == Symbol('x')
-        True
-        >>> Symbol('x') == Symbol('y')
-        False
-        >>> Symbol('x') == 9
-        False
-        """
 
         if isinstance(other, Symbol):
             return self.name == other.name

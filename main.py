@@ -1,7 +1,4 @@
-from solver.core.expr import *
-from solver.core.structs import *
-from solver.core.symbol import Symbol
-
+from solver import *
 a = Symbol('a')
 b = Symbol('b')
 c = Symbol('c')
@@ -11,6 +8,5 @@ f = Symbol('f')
 x = Symbol('x')
 y = Symbol('y')
 
-e = Expression([x, Pow, a, Mul, y, Pow, b, Mul, x, Pow, c, Add, e])
-for n in e.ast:
-    print n.value
+expr = ((y + x) * y) ** y
+print subs(expr, y, x)

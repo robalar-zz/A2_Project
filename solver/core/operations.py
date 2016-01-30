@@ -1,4 +1,4 @@
-from .atoms import Number, Atom
+from .numbers import Number
 from .symbol import Symbol
 from .expr import Expression
 
@@ -8,57 +8,7 @@ from operator import mul
 # TODO: Separate into different files?
 
 
-class Operator(object):
-    """ Base class for all arithmetic operators.
-
-    All operators should be derived from this class so they can be identified as an operator.
-
-    Attributes:
-        symbol: String representation of the operator.
-        precedence: An integer that ranks the 'priority' of the operator, higher precedence operators are evaluated
-            first.
-        association: A string determining which side of an expression should be evaluated first in the absence of
-            brackets and precedence is the same. For example 7 - 4 + 2, left association would yield (7 - 4) + 2 = 5.
-            Right association would yield 7 - (4 + 2) = 1.
-        commutative: A bool indicating whether the operands can be reveresed while the result remain the same.
-            A * B == B * A, commutative = True.
-            A / B != B / A, commutative = False.
-    """
-
-    symbol = None
-    precedence = None
-    association = None
-    commutative = False
-
-    def __new__(cls, *args):
-        obj = super(Operator, cls).__new__(cls)
-        obj.args = list(args)
-
-        obj.args = [Number(x) if isinstance(x, (int, long, float)) else x for x in obj.args]
-
-        return obj
-
-    # TODO: Find a less 'hacky' way to do this?
-    def __add__(self, other):
-        return Add(self, other)
-
-    def __mul__(self, other):
-        return Mul(self, other)
-
-    def __repr__(self):
-        return '{}({})'.format(self.__class__.__name__, str(self.args)[1:-1])
-
-    def __eq__(self, other):
-        if self.__class__ == other.__class__ and self.args == other.args:
-            return True
-        else:
-            return False
-
-    def get_atoms(self, type=Atom):
-        return [arg for arg in self.args if isinstance(arg, type)]
-
-
-class Eq(Operator, Expression):
+class Eq(Expression):
 
     symbol = '='
 
@@ -66,7 +16,7 @@ class Eq(Operator, Expression):
         raise NotImplementedError
 
 
-class Pow(Operator, Expression):
+class Pow(Expression):
 
     symbol = '**'
     precedence = 4
@@ -74,7 +24,7 @@ class Pow(Operator, Expression):
     commutative = False
 
     def __new__(cls, *args):
-        obj = super(Pow, cls).__new__(cls, *args)
+        obj = Expression.__new__(cls, *args)
 
         if len(args) != 2:
             raise ValueError('Pow must have 2 args (base, exponent)')
@@ -94,7 +44,7 @@ class Pow(Operator, Expression):
         return obj
 
 
-class Mul(Operator, Expression):
+class Mul(Expression):
 
     symbol = '*'
     precedence = 3
@@ -102,7 +52,7 @@ class Mul(Operator, Expression):
     commutative = True
 
     def __new__(cls, *args):
-        obj = Operator.__new__(cls, *args)
+        obj = Expression.__new__(cls, *args)
 
         # x * 0 = 0
         #if Number(0) in obj.args:
@@ -122,7 +72,7 @@ class Mul(Operator, Expression):
             return reduce(mul, args, Number(1))
 
         # Simplifying powers
-        obj.args = [x**Number(1) if isinstance(x, Symbol) else x for x in obj.args]  # x -> x**1
+        #obj.args = [x**Number(1) if isinstance(x, Symbol) else x for x in obj.args]  # x -> x**1
 
         powers = [power for power in obj.args if isinstance(power, Pow)]
         obj.args = [x for x in obj.args if x not in powers]
@@ -150,7 +100,7 @@ class Mul(Operator, Expression):
         return [i for i in self.args if isinstance(i, Number)][0]
 
 
-class Add(Operator, Expression):
+class Add(Expression):
 
     symbol = '+'
     precedence = 2
@@ -158,7 +108,7 @@ class Add(Operator, Expression):
     commutative = True
 
     def __new__(cls, *args):
-        obj = Operator.__new__(cls, *args)
+        obj = Expression.__new__(cls, *args)
 
         # Fold nested Add's
         for item in [arg for arg in args if isinstance(arg, Add)]:
