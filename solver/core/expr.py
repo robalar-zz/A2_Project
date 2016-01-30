@@ -5,7 +5,7 @@ class Expression(Base):
 
     def __new__(cls, *args):
         obj = Base.__new__(cls)
-        obj.args = args
+        obj.args = list(args)
 
         return obj
 
