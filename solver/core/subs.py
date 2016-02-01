@@ -1,26 +1,21 @@
-from .expr import Expression
+from .expr import Expression, postorder
 
+import copy
 
 def subs(expression, old_term, new_term):
 
     # FIXME: Add type checking
     # TODO: Add multiple subs per call
 
-    if not isinstance(expression, Expression):
-        if expression == old_term:
-            return new_term
-        else:
-            return expression
+    final_expression = copy.deepcopy(expression)
 
-    final_expression = expression
+    if final_expression == old_term:
+        final_expression = new_term
 
-    for i, sub_expression in enumerate(final_expression):
-
-        subs(sub_expression, old_term, new_term)
-
-        if sub_expression == old_term:
-            final_expression.args[i] = new_term
-
-    final_expression = final_expression.__class__(*final_expression.args)  # Eval again after substituting
+    for node in postorder(final_expression):
+        if isinstance(node, Expression):
+            for i, sub_expr in enumerate(node.args):
+                if sub_expr == old_term:
+                    node.args[i] = new_term
 
     return final_expression

@@ -44,6 +44,8 @@ class Base(object):
     def __repr__(self):
         return '{}'.format(self.__class__.__name__)
 
+    def __deepcopy__(self, memo):
+        return self
 
 class Atom(Base):
     """ Base class for any atomic type.
