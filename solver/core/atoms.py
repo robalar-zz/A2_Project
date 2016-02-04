@@ -2,22 +2,21 @@ class Base(object):
     """ Base class for all other objects, this is so all types can be manipulated generally.
     """
 
-    def __new__(cls):
-        obj = object.__new__(cls)
-        return obj
+    def __init__(self):
+        pass
 
     def __add__(self, other):
         from .operations import Add
         return Add(self, other)
+
+    def __radd__(self, other):
+        return self.__add__(other)
 
     def __pos__(self):
         return self
 
     def __neg__(self):
         return -1 * self
-
-    def __radd__(self, other):
-        return self.__add__(other)
 
     def __mul__(self, other):
         from .operations import Mul
@@ -44,16 +43,10 @@ class Base(object):
     def __repr__(self):
         return '{}'.format(self.__class__.__name__)
 
-    def __deepcopy__(self, memo):
-        return self
 
 class Atom(Base):
     """ Base class for any atomic type.
     """
 
-    def __new__(cls):
-        obj = Base.__new__(cls)
-        obj.args = tuple()  # Must have no sub-expressions
-
-        return obj
-
+    def __init__(self):
+        super(Atom, self).__init__()

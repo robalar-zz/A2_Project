@@ -15,6 +15,8 @@ class Number(Atom):
     def __repr__(self):
         return str(self.value)
 
+    def __deepcopy__(self, memo):
+        return self
 
 class Undefined(Number):
     """ For calculations where the result is known i.e. 0/0, 0^0, oo/oo
@@ -36,6 +38,9 @@ class Undefined(Number):
 class Integer(Number):
 
     def __init__(self, value):
+        
+        super(Integer, self).__init__()
+        
         self.value = value
 
     def __add__(self, other):

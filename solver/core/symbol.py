@@ -13,8 +13,15 @@ class Symbol(Atom):
         name: A string identifier that is unique
     """
 
-    __slots__ = ['name']
+    def __init__(self, name):
+        
+        super(Symbol, self).__init__()
+        
+        if not isinstance(name, str):
+            raise TypeError('A symbols name must be a string not {}'.format(type(name)))
+        self.name = name
 
+    """
     def __new__(cls, name):
         obj = Atom.__new__(cls)
 
@@ -23,7 +30,7 @@ class Symbol(Atom):
 
         obj.name = name
 
-        return obj
+        return obj"""
 
     def __repr__(self):
         return self.name
@@ -32,8 +39,8 @@ class Symbol(Atom):
 
         if isinstance(other, Symbol):
             return self.name == other.name
-
-        return False
+        else:
+            return False
 
     def __ne__(self, other):
         return not self.__eq__(other)

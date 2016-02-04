@@ -8,5 +8,7 @@ f = Symbol('f')
 x = Symbol('x')
 y = Symbol('y')
 
-expr = ((y + x) * y) ** y
-print subs(expr, y, x)
+expr= x + x
+print simplify(expr)
+
+

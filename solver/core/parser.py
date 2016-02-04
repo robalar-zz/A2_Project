@@ -88,7 +88,7 @@ def create_numbers(tokens, local_dict, global_dict):
     for token_number, token_value in tokens:
         if token_number == token.NUMBER:
             if '.' in token_value:
-                raise NotImplementedError #TODO: Implement!
+                raise NotImplementedError  # TODO: Implement!
             else:
                 result.extend([
                     (token.NAME, 'Integer'),

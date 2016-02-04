@@ -1,17 +1,35 @@
-from .atoms import Base
+from .atoms import Base, Atom
+from .numbers import Number
 
 
 class Expression(Base):
 
-    def __new__(cls, *args):
-        obj = Base.__new__(cls)
-        obj.args = list(args)  # Makes expression mutable, change?
+    def __init__(self, *args):
+        super(Expression, self).__init__()
 
-        return obj
+        self.args = [Number(x) if isinstance(x, (long, int, float)) else x for x in args]
+
+    """def __new__(cls, *args):
+        obj = Base.__new__(cls)
+        obj.args = [Number(x) if isinstance(x, (long, int, float)) else x for x in args]   # Makes expression mutable, change?
+
+        return obj"""
 
     def replace(self, old, new):
+
         self.args = [new if x == old else x for x in self.args]
+
+        try:
+            if _sublist(self.args, old.args):
+                self.args = _remove_sublist(self.args, old.args)
+                self.args.append(new)
+        except AttributeError:
+            pass
+
         return self
+
+    def atoms(self, cls=Atom):
+        return [x for x in self.args if isinstance(x, cls)]
 
     def __contains__(self, item):
 
@@ -32,19 +50,35 @@ class Expression(Base):
         return iter(self.args)
 
     def __eq__(self, other):
-        if self.__class__ == other.__class__ and self.args == other.args:
-            return True
+        if self.__class__ == other.__class__:
+            return self.args == other.args
         else:
             return False
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 def subexpressions(expression, types=Expression):
-    return [x for x in expression.args if isinstance(x, types)]
+    """ Returns the sub-expressions present in an expression.
+    """
+    try:
+        return [x for x in expression.args if isinstance(x, types)]
+    except AttributeError:
+        return []
 
 
-def _sublist(list, pattern):
-    return [x for x in list if x in set(pattern)]
+def _sublist(list, sublist):
+    n = len(sublist)
+    return any((sublist == list[i:i+n]) for i in xrange(len(list)-n+1))
 
+def _remove_sublist(list, sublist):
+    for item in sublist:
+        try:
+            list.remove(item)
+        except:
+            pass
+    return list
 
 def postorder(node):
 
