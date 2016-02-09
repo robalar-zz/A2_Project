@@ -1,4 +1,4 @@
-from .atoms import Atom
+from .atoms import Atom, Base
 
 
 class Number(Atom):
@@ -47,7 +47,7 @@ class Integer(Number):
         if isinstance(other, Integer):
             return Integer(self.value + other.value)
         else:
-            Atom.__add__(self, other)
+            return Atom.__add__(self, other)
 
     def __iadd__(self, other):
         return self + other
@@ -56,7 +56,7 @@ class Integer(Number):
         if isinstance(other, Integer):
             return Integer(self.value * other.value)
         else:
-            Atom.__mul__(self, other)
+            return Base.__mul__(self, other)
 
     def __rmul__(self, other):
         return self.__mul__(other)
@@ -69,7 +69,7 @@ class Integer(Number):
 
             return Integer(self.value ** power.value)
         else:
-            Atom.__pow__(self, power)
+            return Atom.__pow__(self, power)
 
     def __eq__(self, other):
 
@@ -80,3 +80,10 @@ class Integer(Number):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+def sum(list):
+    result = Number(0)
+    for item in list:
+        result += item
+
+    return result

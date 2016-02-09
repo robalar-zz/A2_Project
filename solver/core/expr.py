@@ -15,6 +15,7 @@ class Expression(Base):
 
         return obj"""
 
+
     def replace(self, old, new):
 
         self.args = [new if x == old else x for x in self.args]
@@ -29,7 +30,20 @@ class Expression(Base):
         return self
 
     def atoms(self, cls=Atom):
-        return [x for x in self.args if isinstance(x, cls)]
+
+        l = [x for x in self.flatten() if isinstance(x, cls)]
+
+        return set(l)
+
+    def flatten(self):
+        out = []
+        for item in self:
+            if isinstance(item, Expression):
+                out.extend(item.flatten())
+            else:
+                out.append(item)
+
+        return out
 
     def __contains__(self, item):
 
@@ -51,7 +65,7 @@ class Expression(Base):
 
     def __eq__(self, other):
         if self.__class__ == other.__class__:
-            return self.args == other.args
+            return sorted(self.args) == sorted(other.args)
         else:
             return False
 

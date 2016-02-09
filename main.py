@@ -8,7 +8,6 @@ f = Symbol('f')
 x = Symbol('x')
 y = Symbol('y')
 
-expr= x + x
+# FIXME
+expr = Number(7)*x + Number(10)*x - Number(2) * x
 print simplify(expr)
-
-

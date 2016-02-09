@@ -1,6 +1,9 @@
-from .expr import Expression, postorder
+#from __future__ import print_function
+
+from .expr import Expression
 
 import copy
+
 
 def subs(expression, old_term, new_term):
 
@@ -15,8 +18,16 @@ def subs(expression, old_term, new_term):
     if final_expression == old_term:
         final_expression = new_term
 
-    for node in postorder(final_expression):
-        if isinstance(node, Expression):
-            node.replace(old_term, new_term)
+    if isinstance(final_expression, Expression):
+        args = final_expression.args
+        #print('expr:{}'.format(final_expression))
+        #print('args len:{}'.format(len(args)))
+        #print('args:{}'.format(args))
+        for i, arg in enumerate(args):
+            arg = subs(arg, old_term, new_term)
+            if not arg == args[i]:
+                args[i] = arg
+
+        final_expression.args = args
 
     return final_expression
