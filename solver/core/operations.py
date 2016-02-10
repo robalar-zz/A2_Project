@@ -126,3 +126,27 @@ def exponent(u):
         return u.exponent
     if isinstance(u, Number):
         return Undefined
+
+def term(u):
+    # Assumes that the constant (number) is the first arg, as it should be with the correct ordering,
+    # and there is only one constant
+
+    if isinstance(u, (Symbol, Add, Pow)):
+        return Mul(u)
+    if isinstance(u, Mul) and isinstance(u.args[0], Number):
+        return Mul(*u.args[1:])
+    if isinstance(u, Mul) and not isinstance(u.args[0], Number):
+        return u
+    if isinstance(u, Number):
+        return Undefined
+
+def const(u):
+    if isinstance(u, (Symbol, Add, Pow)):
+        return Number(1)
+    if isinstance(u, Mul) and isinstance(u.args[0], Number):
+        return u.args[0]
+    if isinstance(u, Mul) and not isinstance(u.args[0], Number):
+        return Number(1)
+    if isinstance(u, Number):
+        return Undefined
+

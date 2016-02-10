@@ -105,10 +105,19 @@ def remove_one_item_exprs(expression):
     return expression
 
 
+def fold_constants(expression):
+    for subexpr in postorder(expression):
+        if isinstance(subexpr, Expression) and subexpressions(subexpr, Number):
+            numbers = subexpressions(subexpr, Number)
+            print numbers
+            final = expression.eval()
+            print final
+    return expression
+
 simplifications = [to_the_power_of_one, to_power_of_zero, add_zero, multiplied_by_one, multiplied_by_zero]
 
 simplifications = [fold_nested, combine_powers, to_the_power_of_one, to_power_of_zero, add_symbols, multiplied_by_zero,
-                   multiplied_by_one, add_zero, remove_one_item_exprs]
+                   multiplied_by_one, add_zero, remove_one_item_exprs, fold_constants]
 
 
 def simplify(expression, simplification_list=simplifications):

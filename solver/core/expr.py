@@ -45,7 +45,7 @@ class Expression(Base):
 
         return out
 
-    def __contains__(self, item):
+    """def __contains__(self, item):
 
         if item.__class__ == self.__class__ and _sublist(self.args, item.args):
             return True
@@ -55,17 +55,17 @@ class Expression(Base):
                 return True
 
             if isinstance(sub_expr, Expression) and item in sub_expr:
-                return True
+                return True"""
 
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, str(self.args)[1:-1])
 
-    def __iter__(self):
-        return iter(self.args)
+    """def __iter__(self):
+        return iter(self.args)"""
 
     def __eq__(self, other):
         if self.__class__ == other.__class__:
-            return sorted(self.args) == sorted(other.args)
+            return self.args == other.args
         else:
             return False
 
@@ -102,4 +102,3 @@ def postorder(node):
                 yield sub
 
     yield node
-

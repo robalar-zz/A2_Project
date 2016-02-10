@@ -1,5 +1,4 @@
 from .atoms import Atom
-from .expr import Expression
 
 __author__ = 'Rob'
 

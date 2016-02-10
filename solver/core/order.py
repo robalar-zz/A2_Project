@@ -1,6 +1,9 @@
-from .numbers import Number
+from .numbers import Number, Integer
 from .symbol import Symbol
-from .operations import Mul, Add, Pow, base, exponent
+from .operations import Mul, Add, Pow, base, exponent, term
+from .expr import subexpressions
+
+import itertools
 
 def isordered(u, v):
     # O-1
@@ -54,3 +57,56 @@ def isordered(u, v):
 
     #O-13
     return not isordered(v, u)
+
+def is_asae(u):
+    # ASAE-1
+    if isinstance(u, Integer):
+        return True
+
+    # ASAE-3
+    if isinstance(u, Symbol):
+        return True
+
+    # ASAE-4
+    if isinstance(u, Mul) and len(u.args) >= 2:
+
+        result = all(is_asae(v) and v != Number(1) and v != Number(0) and not isinstance(v, Mul) for v in u.args)
+        result = result and len(subexpressions(u, Number)) <= 1
+
+        for i, j in itertools.permutations(u.args, 2):
+            ui = u.args.index(i)
+            uj = u.args.index(j)
+            result = result and base(i) != base(j)
+
+            if ui < uj:
+                result = result and isordered(i, j)
+
+        return result
+
+    # ASAE-5
+    if isinstance(u, Add) and len(u.args) >= 2:
+        result = all(is_asae(v) and v != Number(0) and not isinstance(v, Add) for v in u.args)
+        result = result and len(subexpressions(u, Number)) <= 1
+
+        for i, j in itertools.permutations(u.args, 2):
+            ui = u.args.index(i)
+            uj = u.args.index(j)
+            result = result and term(i) != term(j)
+
+            if ui < uj:
+                result = result and isordered(i, j)
+
+        return result
+
+    # ASAE-6
+    if isinstance(u, Pow):
+        result = all(is_asae(v) for v in u.args)
+        result = result and not (exponent(u) == Number(0) or exponent(u) == Number(1))
+        if isinstance(exponent(u), Integer):
+            result = result and is_asae(base(u)) and not isinstance(base(u), Number) and not isinstance(base(u), Mul) \
+                     and not isinstance(base(u), Pow)
+        if not isinstance(exponent(u), Integer):
+            result = result and (is_asae(base(u)) and not (base(u) == Number(0) or base(u) == Number(1)))
+        return result
+
+    return False
