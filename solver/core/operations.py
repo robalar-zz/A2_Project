@@ -1,8 +1,8 @@
-from .numbers import Number
+from .numbers import Number, Undefined
 from .symbol import Symbol
-from .expr import Expression
+from .expr import Expression, subexpressions
 
-from operator import mul
+from operator import mul, add
 
 # TODO: Separate into functions?
 # TODO: Separate into different files?
@@ -51,12 +51,21 @@ class Pow(Expression):
         return obj"""
 
 
+def product(iterable):
+    result = Number(1)
+    for i in iterable:
+        result *= i
+    return result
+
 class Mul(Expression):
 
     symbol = '*'
     precedence = 3
     association = 'left'
     commutative = True
+
+    def eval(self):
+        print product([x for x in subexpressions(self, Number)])
 
     """def __new__(cls, *args):
         obj = Expression.__new__(cls, *args)
@@ -81,6 +90,11 @@ class Add(Expression):
     precedence = 2
     association = 'left'
     commutative = True
+    callback = sum
+
+    def eval(self):
+        print sum([x for x in subexpressions(self, Number)])
+
 
     """def __new__(cls, *args):
         obj = Expression.__new__(cls, *args)
@@ -94,3 +108,21 @@ class Add(Expression):
             return obj.args[0]
 
         return obj"""
+
+
+def base(u):
+    if isinstance(u, (Symbol, Mul, Add)):
+        return u
+    if isinstance(u, Pow):
+        return u.base
+    if isinstance(u, Number):
+        return Undefined
+
+
+def exponent(u):
+    if isinstance(u, (Symbol, Mul, Add)):
+        return Number(1)
+    if isinstance(u, Pow):
+        return u.exponent
+    if isinstance(u, Number):
+        return Undefined

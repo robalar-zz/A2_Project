@@ -81,6 +81,10 @@ class Integer(Number):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __lt__(self, other):
+        if isinstance(other, Integer):
+            return self.value < other.value
+
 def sum(list):
     result = Number(0)
     for item in list:
