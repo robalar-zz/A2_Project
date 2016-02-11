@@ -1,5 +1,8 @@
 from .atoms import Atom, Base
 
+from fractions import Fraction
+
+#TODO: Stop the __new__ inheritance? Create numbers in another way?
 
 class Number(Atom):
 
@@ -11,12 +14,19 @@ class Number(Atom):
                 return args[0]
             if isinstance(args[0], int):
                 return super(Number, cls).__new__(Integer)
+            if isinstance(args[0], basestring):
+                return super(Number, cls).__new__(Rational)
+
+        if len(args) == 2:
+            return super(Number, cls).__new__(Rational)
+
 
     def __repr__(self):
         return str(self.value)
 
     def __deepcopy__(self, memo):
         return self
+
 
 class Undefined(Number):
     """ For calculations where the result is known i.e. 0/0, 0^0, oo/oo
@@ -84,6 +94,36 @@ class Integer(Number):
     def __lt__(self, other):
         if isinstance(other, Integer):
             return self.value < other.value
+
+
+class Rational(Number):
+    """ Purely a wrapper for the builtin fraction class
+    """
+    
+    def __init__(self, *args):
+        super(Rational, self).__init__()
+        
+        self.fract = Fraction(*args)
+
+    def __str__(self):
+        return self.fract.__str__()
+
+    def __add__(self, other):
+        if isinstance(other, Rational):
+            return Fraction.__add__(self.fract, other.fract)
+
+    def __radd__(self, other):
+        if isinstance(other, Rational):
+            return Fraction.__add__(self.fract, other.fract)
+
+    def __mul__(self, other):
+        if isinstance(other, Rational):
+            return Fraction.__mul__(self._fract, other._fract)
+
+    def __rmul__(self, other):
+        if isinstance(other, Rational):
+            return Fraction.__mul__(self.fract, other.fract)
+
 
 def sum(list):
     result = Number(0)
