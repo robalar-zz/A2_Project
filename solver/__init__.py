@@ -4,3 +4,4 @@ from solver.core.atoms import *
 from solver.core.subs import *
 from solver.core.rewrite import *
 from solver.core.expr import *
+from solver.core.numbers import *

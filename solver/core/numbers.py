@@ -14,7 +14,7 @@ class Number(Atom):
                 return args[0]
             if isinstance(args[0], int):
                 return super(Number, cls).__new__(Integer)
-            if isinstance(args[0], basestring):
+            if isinstance(args[0], basestring) or isinstance(args[0], Fraction):
                 return super(Number, cls).__new__(Rational)
 
         if len(args) == 2:
@@ -28,7 +28,7 @@ class Number(Atom):
         return self
 
 
-class Undefined(Number):
+class Undefined(object):
     """ For calculations where the result is known i.e. 0/0, 0^0, oo/oo
     """
 
@@ -44,6 +44,9 @@ class Undefined(Number):
     def __div__(self, other):
         return self
 
+    def __repr__(self):
+        return 'Undefined'
+
 
 class Integer(Number):
 
@@ -53,7 +56,7 @@ class Integer(Number):
         
         self.value = value
 
-    def __add__(self, other):
+    """def __add__(self, other):
         if isinstance(other, Integer):
             return Integer(self.value + other.value)
         else:
@@ -79,7 +82,7 @@ class Integer(Number):
 
             return Integer(self.value ** power.value)
         else:
-            return Atom.__pow__(self, power)
+            return Atom.__pow__(self, power)"""
 
     def __eq__(self, other):
 
@@ -95,6 +98,23 @@ class Integer(Number):
         if isinstance(other, Integer):
             return self.value < other.value
 
+    def __le__(self, other):
+        if isinstance(other, Integer):
+            return self.value <= other.value
+
+    def __gt__(self, other):
+        if isinstance(other, Integer):
+            return self.value > other.value
+
+    def __ge__(self, other):
+        if isinstance(other, Integer):
+            return self.value >= other.value
+
+
+
+    def __abs__(self):
+        return Number(abs(self.value))
+
 
 class Rational(Number):
     """ Purely a wrapper for the builtin fraction class
@@ -103,13 +123,13 @@ class Rational(Number):
     def __init__(self, *args):
         super(Rational, self).__init__()
         
-        self.fract = Fraction(*args)
-        self.numerator = self.fract.numerator
-        self.denominator = self.fract.denominator
+        self.value = Fraction(*args)
+        self.numerator = self.value.numerator
+        self.denominator = self.value.denominator
 
     def __str__(self):
-        return self.fract.__str__()
-
+        return self.value.__str__()
+    """
     def __add__(self, other):
         if isinstance(other, Rational):
             return Fraction.__add__(self.fract, other.fract)
@@ -124,7 +144,7 @@ class Rational(Number):
 
     def __rmul__(self, other):
         if isinstance(other, Rational):
-            return Fraction.__mul__(self.fract, other.fract)
+            return Fraction.__mul__(self.fract, other.fract)"""
 
 
 def sum(list):
