@@ -104,6 +104,8 @@ class Rational(Number):
         super(Rational, self).__init__()
         
         self.fract = Fraction(*args)
+        self.numerator = self.fract.numerator
+        self.denominator = self.fract.denominator
 
     def __str__(self):
         return self.fract.__str__()

@@ -4,7 +4,7 @@ from .expr import Expression
 
 import copy
 
-
+# OLD VERSION
 def subs(expression, old_term, new_term):
 
     # TODO: Add rearrangement of old term
@@ -31,3 +31,21 @@ def subs(expression, old_term, new_term):
         final_expression.args = args
 
     return final_expression
+
+# NEW SHINY VERSION
+def _map(func, expression, *func_args):
+    op = expression.__class__
+    new_args = [func(x, *func_args) for x in expression.args]
+    return op(*new_args)
+
+
+def substitute(u, old, new):
+    if isinstance(u, Expression):
+        v = _map(substitute, u, old, new)
+    else:
+        v = u
+
+    if v == old:
+        return new
+    else:
+        return v
