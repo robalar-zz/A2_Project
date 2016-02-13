@@ -1,6 +1,16 @@
 from .numbers import Rational, Integer, Number, Undefined
 
 def evaluate_add(p, q):
+    """ Evaluate an Number sum
+
+        Args:
+            p: 1st number to evaluate
+            q: 2nd number to evaluate
+        Returns:
+            Undefined or evaluated number
+        Raises:
+            ValueError: if q or q aren't numbers
+    """
     if not isinstance(p, Number) or not isinstance(q, Number):
         raise ValueError('p and q must be Number instances')
 
@@ -11,13 +21,24 @@ def evaluate_add(p, q):
 
 
 def evaluate_mul(p, q):
+    """ Evaluate an Number product
+
+        Args:
+            p: 1st number to evaluate
+            q: 2nd number to evaluate
+        Returns:
+            Undefined or evaluated number
+        Raises:
+            ValueError: if q or q aren't numbers
+    """
     if not isinstance(p, Number) or not isinstance(q, Number):
-        raise ValueError('p and q must be Number instances')
+        raise ValueError('p and q must be Number instances not {} and {}'.format(type(p), type(q)))
 
     if isinstance(p, Undefined) or isinstance(q, Undefined):
         return Undefined()
     else:
         return Number(p.value * q.value)
+
 
 def evaluate_power(v, n):
     """ Evaluates an integer power.

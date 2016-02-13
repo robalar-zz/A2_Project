@@ -9,6 +9,19 @@ from fractions import gcd
 
 
 def simplify_rational(u):
+    """ Simplifies a rational down to its canonical form.
+
+        Args:
+            u: a Rational or Integer instance
+        Returns:
+            Rational (in canonical form) or Integer
+        Raises:
+            ValueError: if u is neither Rational or Integer
+    """
+
+    if not isinstance(u, (Integer, Rational)):
+        raise ValueError('u must be an Integer or Rational instance')
+
     if isinstance(u, Integer):
         return u
     elif isinstance(u, Rational):
@@ -32,6 +45,12 @@ def simplify_rational(u):
 
 
 def simplify_rne(u):
+    """ Takes a RNE (expression comprised of Numbers) and returns it in its canonical form.
+        Args:
+            u: A Integer or Rational or a binary expression containing them
+        Returns:
+            A Integer or Fraction in cononical form, or Undefined()
+    """
     def simp_rec(u):
         if isinstance(u, Integer):
             return u
@@ -39,6 +58,8 @@ def simplify_rne(u):
         elif isinstance(u, Rational):
             if u.denominator == 0:
                 return Undefined()
+            else:
+                return u
 
         elif len(u.args) == 1:
             v = simp_rec(u.args[0])
@@ -59,6 +80,7 @@ def simplify_rne(u):
                     if isinstance(u, Add):
                         return evaluate_add(v, w)
                     if isinstance(u, Mul):
+                        print u
                         return evaluate_mul(v, w)
             elif isinstance(u, Pow):
                 v = simp_rec(u.args[0])
@@ -66,7 +88,6 @@ def simplify_rne(u):
                     return Undefined()
                 else:
                     return evaluate_power(v, u.args[1])
-
     v = simp_rec(u)
     if isinstance(v, Undefined):
         return Undefined
@@ -75,20 +96,37 @@ def simplify_rne(u):
 
 
 def simplify_integer_power(v, w):
+    """ Simplifies Pow(v, w) with an Integer exponent to its canonical form.
+
+        SINTPOW-1: Both v and w are Numbers => can be evalated
+        SINTPOW-2: x^0 => 1
+        SINTPOW-3: x^1 => x, x != 0 (already implied from simplify_power)
+        SINTPOW-4: If base is also power then, (x^a)^b => x^(a*b)
+        SINTPOW-5: If base is a product then, (a ... n)^b => a^b ... n^b
+        SINTPOW-6: Already in its simplified form
+
+        Args:
+            v: an expression that != 0
+            w: an Integer
+        Returns:
+            Canonical form of a the Pow(v, w)
+        Raises:
+            ValueError: if w is not an Integer
+    """
     if not isinstance(w, Integer):
         raise ValueError('w must be a Integer')
 
     # SINTPOW-1
-    if isinstance(v, (Integer, Rational)):  # if both are integers
+    if isinstance(v, (Integer, Rational)):
         return simplify_rne(Pow(v, w))
     # SINTPOW-2
-    elif w == Number(0):  # x^0 -> 1
+    elif w == Number(0):
         return Number(1)
     # SINTPOW-3
-    elif w == Number(1):  # x^1 -> x, x != 0 (already implied from simplify_power)
+    elif w == Number(1):
         return v
     # SINTPOW-4
-    elif isinstance(v, Pow):  # If base is also power then, (x^a)^b -> x^(a*b)
+    elif isinstance(v, Pow):
         r = v.base
         s = v.exponent
         p = simplify_product(Mul(s, w))
@@ -107,6 +145,21 @@ def simplify_integer_power(v, w):
 
 
 def simplify_power(u):
+    """ Simplifies a power to its canonical form.
+
+        SPOW-1: Both v or w = Undefined => Undefined
+        SPOW-2: v = 0, if w > 0 => 0 else => Undefined
+        SPOW-3: v = 1 => 1
+        SPOW-4: if w is integer => simplify_integer_power
+        SPOW-5: Can't be simplified => u
+
+        Args:
+            u: Pow to be simplified
+        Returns:
+            u in its canonical form
+        Raises:
+            ValueError: if u is not a Pow
+    """
     if not isinstance(u, Pow):
         raise ValueError('u must be a Pow')
 
@@ -114,11 +167,11 @@ def simplify_power(u):
     w = u.exponent
 
     # SPOW-1
-    if isinstance(v, Undefined) or isinstance(w, Undefined):  # Undefined^a -> Undefined, a^Undefined -> Undefined
+    if isinstance(v, Undefined) or isinstance(w, Undefined):
         return Undefined()
     # SPOW-2
     elif v == Number(0):
-        if isinstance(w, Number) and w > Number(0):  # Power is positive integer or rational
+        if isinstance(w, Number) and w > Number(0):
             return Number(0)
         else:
             return Undefined()
@@ -134,6 +187,24 @@ def simplify_power(u):
 
 
 def merge_products(p, q):
+    """ Combines the lists p and q as the factors of a Mul
+
+        MMUL-1: q = [] => p (nothing to merge)
+        MMUL-2: p = [] => q (nothing to merge)
+        MMUL-3: h = simplify_product_rec([p[0], q[0]])
+            -3-1: if h = [] => p[0] * q[0] = 1 =>  merge_products(p[1:], q[1:]) (1 not included on the list)
+            -3-2: if h is one operand => p[0] * q[0] = h => [h, merge_products(p[1:], q[1:])] (remove mul'ed terms with
+                  simplified (h))
+            -3-3 & -3-4: if ordering of operands is wrong => append to beginning
+
+        Args:
+            p: first list to be combined
+            q: second list to be combined
+        Returns:
+            list of combined operands
+        Raises:
+            ValueError: if p and q aren't lists
+    """
     if not isinstance(p, list) and not isinstance(p, list):
         raise ValueError('p and q must be lists')
     # MMUL-1
@@ -163,7 +234,28 @@ def merge_products(p, q):
             v.insert(0, q[0])
             return v
 
+
 def _simplify_product_rec(l):
+    """ Recursively simplify l as the operands of Mul.
+
+        SMULREC-1: l is len 2 and neither operand is a product
+               -1-1: if both are numbers => evaluate => if 1 => [], else => result
+               -1-2: if either is 1 => the other
+               -1-3: if bases are equal => base^(Add(exponents)) => if 1 [], else => result
+               -1-4: l[1] <| l[0] => [l[1], l[0]]
+               -1-5: l is in it simplest form => l
+        SMULREC-2: l is len 2 and at least one operand is a product
+               -2-1 & -2-2 & -2-3: => merge_products
+        SMULREC-3: w = simplify_product_rec(l[1:])
+               -3-1 & -3-2: => merge_products
+
+        Args:
+            l: list of operands from a Mul
+        Returns:
+            list of operands in canonical form
+        Raises:
+            ValueError: if l not >= 2
+    """
     if not len(l) >= 2:
         ValueError('u must be a list with len >= 2')
     if len(l) == 2:
@@ -219,7 +311,23 @@ def _simplify_product_rec(l):
 
 
 def simplify_product(u):
+    """ Transforms a Mul into its canonical form.
 
+        SMUL-1: if u contains Undefined => Undefined
+        SMUL-2: if u contains 0 => 0
+        SMUL-3: if u is has one operand => u.args[0]
+        SMUL-4: v = simplify_product_rec(u.args)
+            -4-1: v is one operand => v[0]
+            -4-2: v >=2 => Mul with args=v
+            -4-3: v = [] => 1
+
+        Args:
+            u: instance of Mul to transform
+        Returns:
+            Mul in canonical form
+        Raises:
+            ValueError: if u isn't Mul
+    """
     if not isinstance(u, Mul):
         raise ValueError('u must be a Mul instance')
 
@@ -245,6 +353,24 @@ def simplify_product(u):
 
 
 def merge_sums(p, q):
+    """ Combines the lists p and q as the factors of a Add
+
+        MADD-1: q = [] => p (nothing to merge)
+        MMUL-2: p = [] => q (nothing to merge)
+        MMUL-3: h = simplify_sum_rec([p[0], q[0]])
+            -3-1: if h = [] => p[0] + q[0] = 0 =>  merge_sums(p[1:], q[1:]) (1 not included on the list)
+            -3-2: if h is one operand => p[0] + q[0] = h => [h, merge_sums(p[1:], q[1:])] (remove added terms with
+                  simplified (h))
+            -3-3 & -3-4: if ordering of operands is wrong => append to beginning
+
+        Args:
+            p: first list to be combined
+            q: second list to be combined
+        Returns:
+            list of combined operands
+        Raises:
+            ValueError: if p and q aren't lists
+    """
     # MADD-1
     if not p:
         return q
@@ -274,6 +400,26 @@ def merge_sums(p, q):
 
 
 def _simplify_sum_rec(l):
+    """ Recursively simplify l as the operands of Add.
+
+        SADDREC-1: l is len 2 and neither operand is a sum
+               -1-1: if both are numbers => evaluate => if 0 => [], else => result
+               -1-2: if either is 0 => the other
+               -1-3: if terms are equal => term * sum(constants) => if 0 => [], else => result
+               -1-4: l[1] <| l[0] => [l[1], l[0]]
+               -1-5: l is in it simplest form => l
+        SADDREC-2: l is len 2 and at least one operand is a product
+               -2-1 & -2-2 & -2-3: => merge_products
+        SADDREC-3: w = simplify_product_rec(l[1:])
+               -3-1 & -3-2: => merge_products
+
+        Args:
+            l: list of operands from a Add
+        Returns:
+            list of operands in canonical form
+        Raises:
+            ValueError: if l not >= 2
+    """
     if not len(l) >= 2:
         ValueError('u must be a list with len >= 2')
 
@@ -327,7 +473,22 @@ def _simplify_sum_rec(l):
 
 
 def simplify_sum(u):
+    """ Transforms a Mul into its canonical form.
 
+        SMUL-1: if u contains Undefined => Undefined
+        SMUL-2: if u is has one operand => u.args[0]
+        SMUL-3: v = simplify_sum_rec(u.args)
+            -3-1: v is one operand => v[0]
+            -3-2: v >=2 => Add with args=v
+            -3-3: v = [] => 0
+
+        Args:
+            u: instance of Add to transform
+        Returns:
+            Add in canonical form
+        Raises:
+            ValueError: if u isn't Add
+    """
     if not isinstance(u, Add):
         raise ValueError('u must be a Add instance')
 
@@ -355,6 +516,13 @@ def simplify_function(u):
 
 
 def auto_simplify(u):
+    """ Applies all the appropriate transform rules to an expression recursively.
+
+        Args:
+            u: expression to be transformed
+        Returns:
+            u in canonical form, could be Number, Symbol or Expression
+    """
     if isinstance(u, (Integer, Symbol)):
         return u
     elif isinstance(u, Rational):
