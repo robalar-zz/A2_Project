@@ -1,7 +1,5 @@
 from .atoms import Atom
 
-__author__ = 'Rob'
-
 
 class Symbol(Atom):
     """ Represents an algebraic constant.
@@ -20,16 +18,6 @@ class Symbol(Atom):
             raise TypeError('A symbols name must be a string not {}'.format(type(name)))
         self.name = name
 
-    """
-    def __new__(cls, name):
-        obj = Atom.__new__(cls)
-
-        if not isinstance(name, str):
-            raise TypeError('A symbols name must be a string not {}'.format(type(name)))
-
-        obj.name = name
-
-        return obj"""
 
     def __repr__(self):
         return self.name

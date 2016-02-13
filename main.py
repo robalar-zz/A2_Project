@@ -19,4 +19,4 @@ z = Symbol('z')
 
 from solver.core.simplify import *
 
-print auto_simplify(x * Number(4) + Number(2) * x)
+print auto_simplify(Number(4)*(Number(2)**Number(-1)))

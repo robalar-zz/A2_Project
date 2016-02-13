@@ -9,13 +9,6 @@ class Expression(Base):
 
         self.args = [Number(x) if isinstance(x, (long, int, float)) else x for x in args]
 
-    """def __new__(cls, *args):
-        obj = Base.__new__(cls)
-        obj.args = [Number(x) if isinstance(x, (long, int, float)) else x for x in args]   # Makes expression mutable, change?
-
-        return obj"""
-
-
     def replace(self, old, new):
 
         self.args = [new if x == old else x for x in self.args]
@@ -45,23 +38,8 @@ class Expression(Base):
 
         return out
 
-    """def __contains__(self, item):
-
-        if item.__class__ == self.__class__ and _sublist(self.args, item.args):
-            return True
-
-        for sub_expr in self:
-            if sub_expr == item:
-                return True
-
-            if isinstance(sub_expr, Expression) and item in sub_expr:
-                return True"""
-
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, str(self.args)[1:-1])
-
-    """def __iter__(self):
-        return iter(self.args)"""
 
     def __eq__(self, other):
         if self.__class__ == other.__class__:
