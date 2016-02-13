@@ -1,5 +1,6 @@
 from .atoms import Base, Atom
-from .numbers import Number
+from .numbers import Number, Integer, Rational
+from .symbol import Symbol
 
 
 class Expression(Base):
@@ -49,6 +50,18 @@ class Expression(Base):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+
+def free_of(u, t):
+    if u == t:
+        return False
+    elif isinstance(u, (Symbol, Integer, Rational)):
+        return True
+    else:
+        for operand in u.args:
+            if not free_of(operand, t):
+                return False
+        return True
 
 
 def subexpressions(expression, types=Expression):
