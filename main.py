@@ -10,5 +10,4 @@ x = Symbol('x')
 y = Symbol('y')
 z = Symbol('z')
 
-#TODO: implment functions
-
+print auto_simplify((x**Number(2)-Number(1))/(x+Number(1)))

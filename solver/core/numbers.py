@@ -2,7 +2,6 @@ from .atoms import Atom, Base
 
 from fractions import Fraction
 
-#TODO: Stop the __new__ inheritance? Create numbers in another way?
 
 class Number(Atom):
 
@@ -19,7 +18,6 @@ class Number(Atom):
 
         if len(args) == 2:
             return super(Number, cls).__new__(Rational)
-
 
     def __repr__(self):
         return str(self.value)
@@ -91,6 +89,7 @@ class Integer(Number):
         super(Integer, self).__init__()
         
         self.value = value
+
 
 class Rational(Number):
     """ Purely a wrapper for the builtin fraction class

@@ -80,7 +80,6 @@ def simplify_rne(u):
                     if isinstance(u, Add):
                         return evaluate_add(v, w)
                     if isinstance(u, Mul):
-                        print u
                         return evaluate_mul(v, w)
             elif isinstance(u, Pow):
                 v = simp_rec(u.args[0])

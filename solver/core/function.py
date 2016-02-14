@@ -1,9 +1,19 @@
 from .expr import Expression
 
+
 class Function(Expression):
-    def __init__(self, name):
+
+    name = None
+
+    nargs = 1
+
+    def __init__(self, *args):
         super(Function, self).__init__()
-        self.name = name
+
+        if len(args) > self.nargs:
+            raise ValueError('Too many args passed to {}'.format(self.name))
+
+        self.args = list(args)
 
     def __repr__(self):
         return '{}({})'.format(self.name, str(self.args)[1:-1])

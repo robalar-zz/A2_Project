@@ -1,4 +1,5 @@
 from .atoms import Atom
+from .numbers import Number
 
 
 class Symbol(Atom):
@@ -31,3 +32,41 @@ class Symbol(Atom):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+
+class ReservedSymbol(Symbol):
+    """ Used to represent numbers like pi and e that have values but are imprecise.
+
+        Attributes:
+            name: name of the symbol
+            value: approximate value of the symbol
+    """
+    def __init__(self, name, value):
+        super(ReservedSymbol, self).__init__(name)
+
+        if not isinstance(value, Number):
+            raise ValueError('A reserved symbol must have a Number value')
+
+        self.value = value
+
+    def __eq__(self, other):
+        if isinstance(other, ReservedSymbol):
+            return self.name == other.name
+        if isinstance(other, Number):
+            return self.value == other
+
+    def __lt__(self, other):
+        if isinstance(other, Number):
+            return self.value < other
+
+    def __le__(self, other):
+        if isinstance(other, Number):
+            return self.value <= other
+
+    def __gt__(self, other):
+        if isinstance(other, Number):
+            return self.value > other
+
+    def __ge__(self, other):
+        if isinstance(other, Number):
+            return self.value >= other
