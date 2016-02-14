@@ -64,6 +64,10 @@ def free_of(u, t):
         return True
 
 
+def free_of_set(u, t_set):
+    return all(free_of(u, t) for t in t_set)
+
+
 def subexpressions(expression, types=Expression):
     """ Returns the sub-expressions present in an expression.
     """

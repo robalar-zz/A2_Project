@@ -462,13 +462,13 @@ def _simplify_sum_rec(l):
             if isinstance(l[1], Add):
                 return merge_sums([l[0]], l[1].args)
 
-        # SADDREC-3
-        if len(l) > 2:
-            w = _simplify_sum_rec(l[1:])
-            if isinstance(l[0], Add):
-                return merge_products(l[0].args, w)
-            else:
-                return merge_products([l[0]], w)
+    # SADDREC-3
+    if len(l) > 2:
+        w = _simplify_sum_rec(l[1:])
+        if isinstance(l[0], Add):
+            return merge_sums(l[0].args, w)
+        else:
+            return merge_sums([l[0]], w)
 
 
 def simplify_sum(u):
@@ -511,7 +511,7 @@ def simplify_sum(u):
 
 
 def simplify_function(u):
-    raise NotImplementedError
+    return u
 
 
 def auto_simplify(u):

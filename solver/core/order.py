@@ -2,6 +2,7 @@ from .numbers import Number, Integer
 from .symbol import Symbol
 from .operations import Mul, Add, Pow, base, exponent, term
 from .expr import subexpressions
+from .function import Function
 
 import itertools
 
@@ -39,21 +40,45 @@ def isordered(u, v):
         if base(u) == base(u):
             return isordered(exponent(u), exponent(v))
 
+    #O-6
+    if isinstance(u, Function) and isinstance(v, Function):
+        if u.name != v.name:
+            return u.name < u.name
+        else:
+            m = len(u.args) - 1
+            n = len(v.args) - 1
+
+            k = zip(u.args, v.args)  # zip first to first
+
+            for j in k:
+                if j[0] != j[1]:
+                    return isordered(j[0], j[1])
+
+            if all(j[0] == j[1] for j in k):
+                return m < n
+
     #O-7
     if isinstance(u, Number) and not isinstance(v, Number):
         return True
 
     #O-8
-    if isinstance(u, Mul) and isinstance(v, (Pow, Add, Symbol)):
+    if isinstance(u, Mul) and isinstance(v, (Pow, Add, Symbol, Function)):
         return isordered(u, Mul(v))
 
     #O-9
-    if isinstance(u, Pow) and isinstance(v, (Add, Symbol)):
+    if isinstance(u, Pow) and isinstance(v, (Add, Symbol, Function)):
         return isordered(u, Pow(v, Number(1)))
 
     #O-10
-    if isinstance(u, Add) and isinstance(v, (Symbol)):
+    if isinstance(u, Add) and isinstance(v, (Symbol, Function)):
         return isordered(u, Add(v))
+
+    #O-12
+    if isinstance(u, Function) and isinstance(v, Symbol):
+        if u.name == v.name:
+            return False
+        else:
+            return u.name < v.name
 
     #O-13
     return not isordered(v, u)

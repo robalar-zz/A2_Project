@@ -1,11 +1,7 @@
 from .numbers import Number, Undefined
 from .symbol import Symbol
 from .expr import Expression, subexpressions
-
-from operator import mul, add
-
-# TODO: Separate into functions?
-# TODO: Separate into different files?
+from .function import Function
 
 
 class Eq(Expression):
@@ -52,7 +48,7 @@ class Add(Expression):
 
 
 def base(u):
-    if isinstance(u, (Symbol, Mul, Add)):
+    if isinstance(u, (Symbol, Mul, Add, Function)):
         return u
     if isinstance(u, Pow):
         return u.base
@@ -61,7 +57,7 @@ def base(u):
 
 
 def exponent(u):
-    if isinstance(u, (Symbol, Mul, Add)):
+    if isinstance(u, (Symbol, Mul, Add, Function)):
         return Number(1)
     if isinstance(u, Pow):
         return u.exponent
@@ -73,7 +69,7 @@ def term(u):
     # Assumes that the constant (number) is the first arg, as it should be with the correct ordering,
     # and there is only one constant
 
-    if isinstance(u, (Symbol, Add, Pow)):
+    if isinstance(u, (Symbol, Add, Pow, Function)):
         return Mul(u)
     if isinstance(u, Mul) and isinstance(u.args[0], Number):
         return Mul(*u.args[1:])
@@ -84,7 +80,7 @@ def term(u):
 
 
 def const(u):
-    if isinstance(u, (Symbol, Add, Pow)):
+    if isinstance(u, (Symbol, Add, Pow, Function)):
         return Number(1)
     if isinstance(u, Mul) and isinstance(u.args[0], Number):
         return u.args[0]
