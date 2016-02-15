@@ -40,6 +40,9 @@ class Base(object):
     def __rsub__(self, other):
         return self.__sub__(other)
 
+    def __hash__(self):
+        return hash(self.__class__.__name__)
+
     def __repr__(self):
         return '{}'.format(self.__class__.__name__)
 
