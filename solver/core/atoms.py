@@ -7,7 +7,8 @@ class Base(object):
 
     def __add__(self, other):
         from .operations import Add
-        return Add(self, other)
+        from .simplify import auto_simplify
+        return auto_simplify(Add(self, other))
 
     def __radd__(self, other):
         return self.__add__(other)
@@ -16,26 +17,34 @@ class Base(object):
         return self
 
     def __neg__(self):
-        return -1 * self
+        from .numbers import Number
+        from .simplify import auto_simplify
+        return auto_simplify(Number(-1) * self)
 
     def __mul__(self, other):
         from .operations import Mul
-        return Mul(self, other)
+        from .simplify import auto_simplify
+        return auto_simplify(Mul(self, other))
 
     def __rmul__(self, other):
         return self.__mul__(other)
 
     def __pow__(self, power, modulo=None):
         from .operations import Pow
-        return Pow(self, power)
+        from .simplify import auto_simplify
+        return auto_simplify(Pow(self, power))
 
     def __div__(self, other):
         from .operations import Mul, Pow
-        return Mul(self, Pow(other, -1))
+        from .numbers import Number
+        from .simplify import auto_simplify
+        return auto_simplify(Mul(self, Pow(other, Number(-1))))
 
     def __sub__(self, other):
         from .operations import Add, Mul
-        return Add(self, Mul(-1, other))
+        from .numbers import Number
+        from .simplify import auto_simplify
+        return auto_simplify(Add(self, Mul(Number(-1), other)))
 
     def __rsub__(self, other):
         return self.__sub__(other)

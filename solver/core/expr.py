@@ -7,8 +7,8 @@ class Expression(Base):
 
     def __init__(self, *args):
         super(Expression, self).__init__()
-
-        self.args = [Number(x) if isinstance(x, (long, int, float)) else x for x in args]
+        self.args = list(args)
+        #self.args = [Number(x) if isinstance(x, (long, int, float)) else x for x in args]
 
     def replace(self, old, new):
 
