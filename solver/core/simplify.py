@@ -43,6 +43,7 @@ def simplify_rational(u):
                 new_denominator, _ = divmod(-d, g)
                 return Rational(new_numerator, new_denominator)
 
+    raise NotImplementedError('rational {} has fallen through'.format(u))
 
 def simplify_rne(u):
     """ Takes a RNE (expression comprised of Numbers) and returns it in its canonical form.
@@ -233,6 +234,8 @@ def merge_products(p, q):
             v.insert(0, q[0])
             return v
 
+    raise NotImplementedError('products {} and {} have fallen through'.format(p, q))
+
 
 def _simplify_product_rec(l):
     """ Recursively simplify l as the operands of Mul.
@@ -308,6 +311,7 @@ def _simplify_product_rec(l):
         else:
             return merge_products([l[0]], w)
 
+    raise NotImplementedError('product {} has fallen through'.format(l))
 
 def simplify_product(u):
     """ Transforms a Mul into its canonical form.
@@ -350,6 +354,7 @@ def simplify_product(u):
     if len(v) == 0:
         return Number(1)
 
+    raise NotImplementedError('product {} has fallen through'.format(u))
 
 def merge_sums(p, q):
     """ Combines the lists p and q as the factors of a Add
@@ -374,7 +379,7 @@ def merge_sums(p, q):
     if not p:
         return q
     # MADD-2
-    if not q:
+    elif not q:
         return p
     # MADD-3
     else:
@@ -388,7 +393,7 @@ def merge_sums(p, q):
             v.insert(0, h[0])
             return v
         # MADD-3-3
-        if h == [p[0], p[0]]:
+        if h == [p[0], q[0]]:
             v = merge_sums(p[1:], q)
             v.insert(0, p[0])
             return v
@@ -397,6 +402,7 @@ def merge_sums(p, q):
             v.insert(0, q[0])
             return v
 
+    raise NotImplementedError('sums {} and {} have fallen through'.format(p, q))
 
 def _simplify_sum_rec(l):
     """ Recursively simplify l as the operands of Add.
@@ -470,6 +476,8 @@ def _simplify_sum_rec(l):
         else:
             return merge_sums([l[0]], w)
 
+    raise NotImplementedError('sum {} has fallen through'.format(l))
+
 
 def simplify_sum(u):
     """ Transforms a Mul into its canonical form.
@@ -508,6 +516,8 @@ def simplify_sum(u):
             return Add(*v)
         elif not v:
             return Number(0)
+
+    raise NotImplementedError('sum {} has fallen through'.format(u))
 
 
 def simplify_function(u):
