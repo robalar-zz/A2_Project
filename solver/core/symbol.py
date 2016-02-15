@@ -19,8 +19,7 @@ class Symbol(Atom):
             raise TypeError('A symbols name must be a string not {}'.format(type(name)))
         self.name = name
 
-
-    def __repr__(self):
+    def __str__(self):
         return self.name
 
     def __eq__(self, other):

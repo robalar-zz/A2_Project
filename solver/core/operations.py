@@ -29,6 +29,9 @@ class Pow(Expression):
         self.base = args[0]
         self.exponent = args[1]
 
+    def __str__(self):
+        return self.symbol
+
 
 class Mul(Expression):
 
@@ -37,6 +40,9 @@ class Mul(Expression):
     association = 'left'
     commutative = True
 
+    def __str__(self):
+        return self.symbol
+
 
 class Add(Expression):
 
@@ -44,7 +50,9 @@ class Add(Expression):
     precedence = 2
     association = 'left'
     commutative = True
-    callback = sum
+
+    def __str__(self):
+        return self.symbol
 
 
 def base(u):
