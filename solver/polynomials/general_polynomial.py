@@ -138,3 +138,19 @@ def expand(u):
             return expand_power(expand(u.base), u.exponent)
     else:
         return u
+
+
+def distribute(u):
+    if not isinstance(u, Mul):
+        return u
+
+    if not any(isinstance(x, Add) for x in u.args):
+        return u
+
+    v = next(x for x in u.args if isinstance(x, Add))
+    f = Mul(*[x for x in u.args if x != v])
+    s = Number(0)
+    for item in v.args:
+        s = s + item * f
+
+    return s
