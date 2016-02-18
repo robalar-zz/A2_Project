@@ -102,7 +102,7 @@ def simplify_integer_power(v, w):
         SINTPOW-2: x^0 => 1
         SINTPOW-3: x^1 => x, x != 0 (already implied from simplify_power)
         SINTPOW-4: If base is also power then, (x^a)^b => x^(a*b)
-        SINTPOW-5: If base is a product then, (a ... n)^b => a^b ... n^b
+        SINTPOW-5: If base is a product then, (a ... n)^b => a^b ... n^b, if b != -1 (special case for fractions)
         SINTPOW-6: Already in its simplified form
 
         Args:
@@ -136,7 +136,7 @@ def simplify_integer_power(v, w):
         else:  # Can't be simplified
             return Pow(r, p)
     # SINTPOW-5
-    elif isinstance(v, Mul):  # (a * b * c^2)^2 -> a^2 * b^2 * c^4
+    elif isinstance(v, Mul) and w != Number(-1):  # (a * b * c^2)^2 -> a^2 * b^2 * c^4
         r = _map(simplify_integer_power, v, w)
         return r
     # SINTPOW-6
