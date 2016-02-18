@@ -59,7 +59,7 @@ class Number(Atom):
             return False
 
     def __abs__(self):
-        return abs(Number(self.value))
+        return Number(abs(self.value))
 
 
 class Undefined(object):
