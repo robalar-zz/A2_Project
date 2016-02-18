@@ -1,38 +1,35 @@
 from ..core.operations import Add, Mul, Pow
+from ..core.numbers import Number
+from ..core.symbol import Symbol
 
 from itertools import izip
 
 
 def infix(expression):
 
-    s = ''
+    def visit(node, prior_precedence):
+        if isinstance(node, (Number, Symbol)):
+            return str(node)
+        # FIXME: for functions
+        result = visit(node.args[0], node.precedence) + str(node) + visit(node.args[1], node.precedence)
 
-    if isinstance(expression, (Add, Mul, Pow)):
-        expression = to_binary(expression)
-        s += '('
-        s += infix(expression.args[0])
+        if node.precedence < prior_precedence:
+            result = '(' + result + ')'
 
-    s += str(expression)
+        return result
 
-    if isinstance(expression, (Add, Mul, Pow)):
-        s += infix(expression.args[1])
-        s += ')'
+    e = to_binary(expression)
+    return visit(e, e.precedence)
 
-    return s
 
 def to_binary(expression):
     if len(expression.args) <= 2:
         return expression
     else:
-        if len(expression.args) % 2 != 0:
-            expression.args.append(None)
         a = iter(expression.args)
         couples = izip(a, a)
-        expression.args = []
+        expression.args = [] if len(expression.args) % 2 == 0 else [expression.args[-1]]
         for couple in couples:
-            if None not in couple:
-                expression.args.append(expression.__class__(*couple))
-            else:
-                expression.args.append(expression.__class__(couple[0]))
+            expression.args.append(expression.__class__(*couple))
 
     return expression
