@@ -480,7 +480,7 @@ def _simplify_sum_rec(l):
 
 
 def simplify_sum(u):
-    """ Transforms a Mul into its canonical form.
+    """ Transforms a Add into its canonical form.
 
         SMUL-1: if u contains Undefined => Undefined
         SMUL-2: if u is has one operand => u.args[0]
