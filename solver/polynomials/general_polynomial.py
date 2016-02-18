@@ -1,7 +1,7 @@
 from ..core.numbers import Integer, Number, Undefined
 from ..core.operations import Pow, base, exponent, Mul, Add
 from ..core.expr import free_of_set
-from ..core.simplify import auto_simplify
+from ..core.atoms import Atom
 
 from solver.formating.basic_console import infix
 
@@ -100,7 +100,13 @@ def collect_terms(u, variable_set):
 
 
 def expand_product(r, s):
+
+    print repr(r), repr(s)
+
     if isinstance(r, Add):
+        if isinstance(s, Atom):
+            return expand(distribute(Mul(s, r)))
+
         f = r.args[0]
         return expand_product(f, s) + expand_product(r - f, s)
     elif isinstance(s, Add):
@@ -134,10 +140,13 @@ def expand(u):
         v = u.args[0]
         return expand_product(expand(v), expand(u/v))
     elif isinstance(u, Pow):
-        if isinstance(u.exponent, Integer) and u.exponent >= Number(2):
-            return expand_power(expand(u.base), u.exponent)
-    else:
-        return u
+        if isinstance(u.exponent, Integer):
+            if u.exponent >= Number(2):
+                return expand_power(expand(u.base), u.exponent)
+            if u.exponent <= Number(-1):
+                return Number(1) / expand_power(expand(u.base), abs(u.exponent))
+
+    return u
 
 
 def distribute(u):
