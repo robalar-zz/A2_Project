@@ -1,11 +1,10 @@
-from ..core.numbers import Integer, Number, Undefined
+from ..core.numbers import Integer, Number, Undefined, Rational
 from ..core.operations import Pow, base, exponent, Mul, Add
 from ..core.expr import free_of_set
 from ..core.atoms import Atom
 
-from solver.formating.basic_console import infix
+from math import factorial, floor
 
-from math import factorial
 
 def is_mononomial_gpe(u, v):
     if not isinstance(v, set):
@@ -101,8 +100,6 @@ def collect_terms(u, variable_set):
 
 def expand_product(r, s):
 
-    print repr(r), repr(s)
-
     if isinstance(r, Add):
         if isinstance(s, Atom):
             return expand(distribute(Mul(s, r)))
@@ -145,6 +142,10 @@ def expand(u):
                 return expand_power(expand(u.base), u.exponent)
             if u.exponent <= Number(-1):
                 return Number(1) / expand_power(expand(u.base), abs(u.exponent))
+        elif isinstance(u.exponent, Rational):
+            largest_int = Number(int(floor(u.exponent.value)))
+            m = u.exponent - largest_int
+            return expand_product(u.base ** m, expand_power(u.base, largest_int))
 
     return u
 
