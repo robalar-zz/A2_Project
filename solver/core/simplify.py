@@ -31,7 +31,7 @@ def simplify_rational(u):
         integer_quotent, integer_remainder = divmod(n, d)
 
         if integer_remainder == 0:
-            return integer_quotent
+            return Number(integer_quotent)
         else:
             g = gcd(n, d)
             if d > 0:
@@ -90,7 +90,7 @@ def simplify_rne(u):
                     return evaluate_power(v, u.args[1])
     v = simp_rec(u)
     if isinstance(v, Undefined):
-        return Undefined
+        return Undefined()
     else:
         return simplify_rational(v)
 
