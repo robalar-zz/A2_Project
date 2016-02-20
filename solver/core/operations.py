@@ -1,4 +1,4 @@
-from .numbers import Number, Undefined
+from .numbers import Number, Undefined, Rational
 from .symbol import Symbol
 from .expr import Expression, subexpressions
 from .function import Function
@@ -97,3 +97,32 @@ def const(u):
     if isinstance(u, Number):
         return Undefined
 
+
+def numerator(u):
+    if isinstance(u, Rational):
+        return Number(u.numerator)  # FIXME: Number conversion should be handled in Rational
+    elif isinstance(u, Pow):
+        if exponent(u) <= Number(1):
+            return Number(1)
+        else:
+            return u
+    elif isinstance(u, Mul):
+        v = u.args[0]
+        return numerator(v) * numerator(u/v)
+    else:
+        return u
+
+
+def denominator(u):
+    if isinstance(u, Rational):
+        return Number(u.denominator)
+    elif isinstance(u, Pow):
+        if exponent(u) <= Number(-1):
+            return base(u) ** abs(exponent(u))
+        else:
+            return Number(1)
+    elif isinstance(u, Mul):
+        v = u.args[0]
+        return denominator(v) * denominator(u/v)
+    else:
+        return Number(1)
