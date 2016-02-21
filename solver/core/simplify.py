@@ -136,7 +136,7 @@ def simplify_integer_power(v, w):
         else:  # Can't be simplified
             return Pow(r, p)
     # SINTPOW-5
-    elif isinstance(v, Mul) and w != Number(-1):  # (a * b * c^2)^2 -> a^2 * b^2 * c^4
+    elif isinstance(v, Mul):  # (a * b * c^2)^2 -> a^2 * b^2 * c^4 TODO: find a way to not expand a^-1?
         r = _map(simplify_integer_power, v, w)
         return r
     # SINTPOW-6

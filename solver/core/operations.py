@@ -102,7 +102,7 @@ def numerator(u):
     if isinstance(u, Rational):
         return Number(u.numerator)  # FIXME: Number conversion should be handled in Rational
     elif isinstance(u, Pow):
-        if exponent(u) <= Number(1):
+        if exponent(u) < Number(0):
             return Number(1)
         else:
             return u
@@ -117,7 +117,7 @@ def denominator(u):
     if isinstance(u, Rational):
         return Number(u.denominator)
     elif isinstance(u, Pow):
-        if exponent(u) <= Number(-1):
+        if exponent(u) < Number(0):
             return base(u) ** abs(exponent(u))
         else:
             return Number(1)
