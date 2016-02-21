@@ -49,18 +49,50 @@ def is_polynomial_gpe(u, v):
         return True
 
 
-def coeff_var_monomial(u, v):
-    if not isinstance(v, set):
-        variable_set = {v}
+def variables_rec(u):
+    if isinstance(u, Integer) or isinstance(u, Rational):
+        return set()
+    elif isinstance(u, Pow):
+        if exponent(u) > Number(1):
+            return {base(u)}
+        else:
+            return {u}
+    elif isinstance(u, Mul):
+        v = u.args[0]
+        return variables_rec(v) | variables(u/v)
     else:
-        variable_set = v
+        return {u}
+
+
+def variables(u):
+    if isinstance(u, Add):
+        v = u.args[0]
+        return variables_rec(v) | variables(u - v)
+    else:
+        return variables_rec(u)
+
+
+def coeff_var_monomial(u, s):
+    """ Returns the coefficient and variable part of a monomial.
+
+        Args:
+            u: an algebraic expression
+            s: (set of) generalised variable(s)
+        Returns:
+            Undefined if u is not a monomial in s
+            Coefficient and variable part of u in form [[list of coefficients], [list of variables]]
+    """
+    if not isinstance(s, set):
+        variable_set = {s}
+    else:
+        variable_set = s
 
     if not is_mononomial_gpe(u, variable_set):
         return Undefined()
     else:
         if isinstance(u, Mul):
             coefficient_part = [c for c in u.args if free_of_set(c, variable_set)]
-            variable_part = [v for v in u.args if v not in coefficient_part]
+            variable_part = [s for s in u.args if s not in coefficient_part]
         else:
             variable_part = [u]
             coefficient_part = [Number(1)]
@@ -86,7 +118,7 @@ def collect_terms(u, variable_set):
                 combined = False
                 for i, other_operand in enumerate(T):
                     if f[1] == other_operand[1]:
-                        T[i] = [Mul(*f[0]) + Mul(*other_operand[0]), f[1]]
+                        T[i] = [[Mul(*f[0]) + Mul(*other_operand[0])], f[1]]
                         combined = True
                         break
                 if not combined:
@@ -94,16 +126,19 @@ def collect_terms(u, variable_set):
 
         v = Number(0)
         for item in T:
-            v = v + Mul(item[0], *item[1])
+            item[0].extend(item[1])
+            v = v + Mul(*item[0])
         return v
 
 
 def expand_product(r, s):
 
+    if isinstance(r, Pow) and isinstance(s, Pow) and exponent(r) < Number(0) and exponent(s) < Number(0):
+        return (expand_product(base(r)**abs(exponent(r)), base(s) ** abs(exponent(s))))**Number(-1)
+
     if isinstance(r, Add):
         if isinstance(s, Atom):
             return expand(distribute(Mul(s, r)))
-
         f = r.args[0]
         return expand_product(f, s) + expand_product(r - f, s)
     elif isinstance(s, Add):
@@ -164,3 +199,7 @@ def distribute(u):
         s = s + item * f
 
     return s
+
+
+def degree_monomial(u):
+    pass
