@@ -6,6 +6,7 @@ from .function import Function
 
 import itertools
 
+
 def isordered(u, v):
     # O-1
     if isinstance(u, Number) and isinstance(v, Number):
@@ -82,6 +83,7 @@ def isordered(u, v):
 
     #O-13
     return not isordered(v, u)
+
 
 def is_asae(u):
     # ASAE-1

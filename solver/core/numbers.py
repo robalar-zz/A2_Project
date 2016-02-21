@@ -104,11 +104,3 @@ class Rational(Number):
 
     def __str__(self):
         return self.value.__str__()
-
-
-def sum(list):
-    result = Number(0)
-    for item in list:
-        result += item
-
-    return result

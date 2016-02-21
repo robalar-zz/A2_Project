@@ -14,36 +14,7 @@ class Expression(Base):
             raise ValueError('Tried to create expression with non-basic types: {}'.format(o))
 
         self.args = list(args)
-        #self.args = [Number(x) if isinstance(x, (long, int, float)) else x for x in args]
-
-    def replace(self, old, new):
-
-        self.args = [new if x == old else x for x in self.args]
-
-        try:
-            if _sublist(self.args, old.args):
-                self.args = _remove_sublist(self.args, old.args)
-                self.args.append(new)
-        except AttributeError:
-            pass
-
-        return self
-
-    def atoms(self, cls=Atom):
-
-        l = [x for x in self.flatten() if isinstance(x, cls)]
-
-        return set(l)
-
-    def flatten(self):
-        out = []
-        for item in self:
-            if isinstance(item, Expression):
-                out.extend(item.flatten())
-            else:
-                out.append(item)
-
-        return out
+        #self.args = [Number(x) if isinstance(x, (long, int, float)) else x for x in args
 
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, str(self.args)[1:-1])
@@ -81,25 +52,3 @@ def subexpressions(expression, types=Expression):
         return [x for x in expression.args if isinstance(x, types)]
     except AttributeError:
         return []
-
-
-def _sublist(list, sublist):
-    n = len(sublist)
-    return any((sublist == list[i:i+n]) for i in xrange(len(list)-n+1))
-
-def _remove_sublist(list, sublist):
-    for item in sublist:
-        try:
-            list.remove(item)
-        except:
-            pass
-    return list
-
-def postorder(node):
-
-    if isinstance(node, Expression):
-        for arg in node:
-            for sub in postorder(arg):
-                yield sub
-
-    yield node

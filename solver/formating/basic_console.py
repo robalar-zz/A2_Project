@@ -4,6 +4,7 @@ from ..core.symbol import Symbol
 
 from itertools import izip
 
+# FIXME: COMPLETELY BROKEN
 
 def infix(expression):
 

@@ -313,6 +313,7 @@ def _simplify_product_rec(l):
 
     raise NotImplementedError('product {} has fallen through'.format(l))
 
+
 def simplify_product(u):
     """ Transforms a Mul into its canonical form.
 
@@ -355,6 +356,7 @@ def simplify_product(u):
         return Number(1)
 
     raise NotImplementedError('product {} has fallen through'.format(u))
+
 
 def merge_sums(p, q):
     """ Combines the lists p and q as the factors of a Add
@@ -403,6 +405,7 @@ def merge_sums(p, q):
             return v
 
     raise NotImplementedError('sums {} and {} have fallen through'.format(p, q))
+
 
 def _simplify_sum_rec(l):
     """ Recursively simplify l as the operands of Add.
