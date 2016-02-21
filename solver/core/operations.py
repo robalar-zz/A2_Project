@@ -1,7 +1,8 @@
 from .numbers import Number, Undefined, Rational
 from .symbol import Symbol
-from .expr import Expression, subexpressions
+from .expr import Expression
 from .function import Function
+from ..polynomials.general_polynomial import expand
 
 
 class Eq(Expression):
