@@ -1,5 +1,5 @@
 from ..core.numbers import Integer, Number, Undefined, Rational
-from ..core.operations import Pow, base, exponent, Mul, Add
+from ..core.operations import Pow, base, exponent, Mul, Add, numerator, denominator
 from ..core.expr import free_of_set
 from ..core.atoms import Atom
 
@@ -164,3 +164,39 @@ def distribute(u):
         s = s + item * f
 
     return s
+
+
+# FIXME: Move somewhere more appropriate
+def rationalise_sum(u, v):
+    """
+        m/r + n/s => (ms + nr)/(rs)
+    """
+
+    m = numerator(u)
+    r = denominator(u)
+    n = numerator(v)
+    s = denominator(v)
+
+    if r == Number(1) and s == Number(1):
+        return u + v
+    else:
+        return rationalise_sum(m * s, n * r)/(r * s)
+
+
+def rationalise(u):
+    if isinstance(u, Pow):
+        return rationalise(u.base) ** u.exponent
+    elif isinstance(u, Mul):
+        f = u.args[0]
+        return rationalise(f) * rationalise(u/f)
+    elif isinstance(u, Add):
+        f = u.args[0]
+        g = rationalise(f)
+        r = rationalise(u - f)
+        return rationalise_sum(g, r)
+    else:
+        return u
+
+
+def rational_expand(u):
+    return expand(rationalise(u))
