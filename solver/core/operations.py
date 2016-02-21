@@ -2,7 +2,7 @@ from .numbers import Number, Undefined, Rational
 from .symbol import Symbol
 from .expr import Expression
 from .function import Function
-from ..polynomials.general_polynomial import expand
+
 
 
 class Eq(Expression):
@@ -161,4 +161,5 @@ def rationalise(u):
 
 
 def rational_expand(u):
+    from ..polynomials.general_polynomial import expand
     return expand(rationalise(u))
