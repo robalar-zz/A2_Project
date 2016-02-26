@@ -40,6 +40,12 @@ class Base(object):
         from .simplify import auto_simplify
         return auto_simplify(Mul(self, Pow(other, Number(-1))))
 
+    def __rdiv__(self, other):
+        from .operations import Mul, Pow
+        from .numbers import Number
+        from .simplify import auto_simplify
+        return auto_simplify(Mul(other, Pow(self, Number(-1))))
+
     def __sub__(self, other):
         from .operations import Add, Mul
         from .numbers import Number
