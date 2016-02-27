@@ -49,28 +49,47 @@ def is_polynomial_gpe(u, v):
         return True
 
 
-def variables_rec(u):
-    if isinstance(u, Integer) or isinstance(u, Rational):
-        return set()
-    elif isinstance(u, Pow):
-        if exponent(u) > Number(1):
-            return {base(u)}
-        else:
-            return {u}
-    elif isinstance(u, Mul):
-        v = u.args[0]
-        return variables_rec(v) | variables(u/v)
-    else:
-        return {u}
-
-
 def variables(u):
     if isinstance(u, Add):
-        v = u.args[0]
-        return variables_rec(v) | variables(u - v)
+        v = set(u.args)
+        return _variables_add(v)
+    elif isinstance(u, Mul):
+        v = set(u.args)
+        return _variables_mul(v)
     else:
-        return variables_rec(u)
+        return _variables({u})
 
+
+def _variables_mul(u):
+    sums = set([x for x in u if isinstance(x, Add)])
+    v = u - sums
+    return _variables(v) | sums
+
+
+def _variables_add(u):
+    v = set()
+    for item in u:
+        if isinstance(item, Mul):
+            v |= _variables_mul(set(item.args))
+        else:
+            v |= _variables({item})
+
+    return v
+
+
+def _variables(u):
+    v = set()
+    for item in u:
+        if isinstance(item, (Integer, Rational)):
+            continue
+        elif isinstance(item, Pow):
+            if exponent(item) > Number(1):
+                v |= {base(item)}
+            else:
+                v |= {item}
+        else:
+            v |= {item}
+    return v
 
 def coeff_var_monomial(u, s):
     """ Returns the coefficient and variable part of a monomial.
@@ -131,14 +150,16 @@ def collect_terms(u, variable_set):
         return v
 
 
+def is_expanded(u):
+    return not any(isinstance(x, Add) for x in variables(u))
+
+
 def expand_product(r, s):
 
     if isinstance(r, Pow) and isinstance(s, Pow) and exponent(r) < Number(0) and exponent(s) < Number(0):
         return (expand_product(base(r)**abs(exponent(r)), base(s) ** abs(exponent(s))))**Number(-1)
 
     if isinstance(r, Add):
-        if isinstance(s, Atom):
-            return expand(distribute(Mul(s, r)))
         f = r.args[0]
         return expand_product(f, s) + expand_product(r - f, s)
     elif isinstance(s, Add):

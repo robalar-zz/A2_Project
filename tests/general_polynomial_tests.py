@@ -34,6 +34,7 @@ def variables_test():
                  {x, Number(2)**Number(1, 2), Number(3)**Number(1, 2), Number(5)**Number(1, 2)})
     assert_equal(variables(Number(1,2)), set())
     assert_equal(variables(x*Number(3)+Number(3)*x**Number(2)*y + Number(3)*x*y**Number(2)+y**Number(3)), {x, y})
+    assert_equal(variables(4*x*(x+5)), {x, x+5})
 
 
 def coeff_var_monomial_test():
@@ -47,6 +48,12 @@ def collect_terms_test():
     assert_equal(collect_terms(Number(2)*a*x*y + Number(3)*b*x*y + Number(4)*a*x + Number(5)*b*x, {x, y}), (Number(2)*a + Number(3)*b)*x*y + (Number(4)*a+Number(5)*b)*x)
     assert_equal(isinstance(collect_terms(Number(3)*x**Number(2), y), Undefined), True)
     assert_equal(collect_terms(Number(3)*x**Number(2), x), Number(3)*x**Number(2))
+    assert_equal(isinstance(collect_terms(y**Number(2)+y*Number(3), {x}), Undefined), True)
+
+
+def is_expanded_test():
+    assert_equal(is_expanded(x**3 + 4*x + 5), True)
+    assert_equal(is_expanded(x**2 + x*(x + 6)*y), False)
 
 
 def expand_test():
