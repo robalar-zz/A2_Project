@@ -57,8 +57,10 @@ def is_expanded_test():
 
 
 def expand_test():
-    assert_equal(expand((x+Number(3))*(x+Number(2))**Number(2)), x**Number(3) + Number(7)*x**Number(2) + Number(16)*x + Number(12))
-    assert_equal(expand(Number(1)/((x+Number(3))*(x+Number(4)))), Number(1)/(x**Number(2) + Number(7)*x + Number(12)))
+    assert_equal(expand((x+3)*(x+2)**2), x**3 + 7*x**2 + 16*x + 12)
+    assert_equal(expand(1/((x+3)*(x+4))), 1/(x**2 + 7*x + 12))
     assert_equal(expand(a*(b+c)), a*b + a*c)
-    assert_equal(expand(Number(1)/(a*(b+c))), Number(1)/(a*b + a*c))
-    assert_equal(expand((x+Number(2)**Number(5,2))), (x+Number(2))*x**Number(2) + (x+Number(2))*Number(4)*x + Number(4)*(x+Number(2)))
+    assert_equal(expand(1/(a*(b+c))), 1/(a*b + a*c))
+    assert_equal(expand((x+2)**Number(5,2)), (x+2)**Number(1,2)*x**2 + (x+2)**Number(1,2)*4*x + 4*(x+2)**Number(1,2))
+    assert_equal(expand((x*(y+1)**Number(3,2)+1)*(x*(y+1)**Number(3,2)-1)), x**2*y**3 + 3*x**2*y**2+3*x**2*y+x**2-1)
+    assert_equal(expand((x*(y+1)**Number(1,2)+1)**4), x**4*y**2+2*x**4*y+x**4+4*x**3*y*(y+1)**Number(1,2)+4*x**3*(y+1)**Number(1,2)+6*x**2*y+6*x**2+4*x*(y+1)**Number(1,2)+1)

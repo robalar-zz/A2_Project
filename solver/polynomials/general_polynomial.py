@@ -155,11 +155,12 @@ def is_expanded(u):
 
 
 def expand_product(r, s):
-
     if isinstance(r, Pow) and isinstance(s, Pow) and exponent(r) < Number(0) and exponent(s) < Number(0):
         return (expand_product(base(r)**abs(exponent(r)), base(s) ** abs(exponent(s))))**Number(-1)
 
     if isinstance(r, Add):
+        if isinstance(s, Pow):
+            return distribute(Mul(r, s))
         f = r.args[0]
         return expand_product(f, s) + expand_product(r - f, s)
     elif isinstance(s, Add):
@@ -170,8 +171,18 @@ def expand_product(r, s):
 
 def expand_power(u, n):
 
+    if n < Number(0):
+        return Number(1) / expand_power(_expand(u), abs(n))
+
+    if isinstance(n, Rational):
+        largest_int = Number(int(floor(n.value)))
+        m = n - largest_int
+        return expand_product(u ** m, expand_power(u, largest_int))
+
     if not isinstance(n, Integer):
-        raise ValueError('n must be and integer, not {}'.format(type(n)))
+        raise ValueError('n must be an integer, not {}'.format(repr(type(n))))
+    elif n < Number(0):
+        raise ValueError('n must be > 0, not {}'.format(n))
 
     if isinstance(u, Add):
         f = u.args[0]
@@ -185,25 +196,25 @@ def expand_power(u, n):
         return u**n
 
 
-def expand(u):
-    if isinstance(u, Add):
-        v = u.args[0]
-        return expand(v) + expand(u - v)
-    elif isinstance(u, Mul):
-        v = u.args[0]
-        return expand_product(expand(v), expand(u/v))
-    elif isinstance(u, Pow):
-        if isinstance(u.exponent, Integer):
-            if u.exponent >= Number(2):
-                return expand_power(expand(u.base), u.exponent)
-            if u.exponent <= Number(-1):
-                return Number(1) / expand_power(expand(u.base), abs(u.exponent))
-        elif isinstance(u.exponent, Rational):
-            largest_int = Number(int(floor(u.exponent.value)))
-            m = u.exponent - largest_int
-            return expand_product(u.base ** m, expand_power(u.base, largest_int))
+def _expand(u):
+        if isinstance(u, Add):
+            v = u.args[0]
+            return _expand(v) + _expand(u - v)
+        elif isinstance(u, Mul):
+            v = u.args[0]
+            return expand_product(_expand(v), _expand(u/v))
+        elif isinstance(u, Pow):
+            return expand_power(_expand(u.base), u.exponent)
+        else:
+            return u
 
-    return u
+
+def expand(u):
+    # TODO: Make more efficient?
+    v = _expand(u)
+    while not is_expanded(v):
+        v = _expand(v)
+    return v
 
 
 def distribute(u):
