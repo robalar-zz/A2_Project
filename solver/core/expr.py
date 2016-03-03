@@ -14,11 +14,6 @@ class Expression(Base):
             o = [x for x in args if isinstance(x, (long, int, float))]
             raise ValueError('Tried to create expression with non-basic types: {}'.format(o))
 
-
-
-    def __repr__(self):
-        return '{}({})'.format(self.__class__.__name__, str(self.args)[1:-1])
-
     def __eq__(self, other):
         if self.__class__ == other.__class__:
             return self.args == other.args

@@ -1,36 +1,40 @@
 from ..core.operations import Add, Mul, Pow
-from ..core.numbers import Number
 from ..core.symbol import Symbol
+from ..core.numbers import Number, Rational
 
-from itertools import izip
 
-# FIXME: COMPLETELY BROKEN
+def basic_console(u, prior_presedence=0):
+    if isinstance(u, (Add, Mul, Pow)):
+        result = format_operator(u)
 
-def infix(expression):
-
-    def visit(node, prior_precedence):
-        if isinstance(node, (Number, Symbol)):
-            return str(node)
-        # FIXME: for functions
-        result = visit(node.args[0], node.precedence) + str(node) + visit(node.args[1], node.precedence)
-
-        if node.precedence < prior_precedence:
+        if u.precedence <= prior_presedence:
             result = '(' + result + ')'
 
         return result
 
-    e = to_binary(expression)
-    return visit(e, e.precedence)
+    if isinstance(u, Symbol):
+        return u.name
 
+    if isinstance(u, Number):
+        result = str(u.value)
 
-def to_binary(expression):
-    if len(expression.args) <= 2:
-        return expression
+        if isinstance(u, Rational):
+            result = '(' + result + ')'
+
+        return result
+
     else:
-        a = iter(expression.args)
-        couples = izip(a, a)
-        expression.args = [] if len(expression.args) % 2 == 0 else [expression.args[-1]]
-        for couple in couples:
-            expression.args.append(expression.__class__(*couple))
+        return u
 
-    return expression
+
+def format_operator(u):
+    l = [basic_console(x, u.precedence) for x in joinit(u.args, u.symbol)]
+    return ''.join(l)
+
+
+def joinit(iterable, delimiter):
+    it = iter(iterable)
+    yield next(it)
+    for x in it:
+        yield delimiter
+        yield x

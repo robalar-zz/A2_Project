@@ -59,7 +59,8 @@ class Base(object):
         return hash(self.__class__.__name__)
 
     def __repr__(self):
-        return '{}'.format(self.__class__.__name__)
+        from ..formating import current_formatter
+        return current_formatter(self)
 
 
 class Atom(Base):

@@ -11,8 +11,7 @@ x = Symbol('x')
 y = Symbol('y')
 z = Symbol('z')
 
+from solver.polynomials.general_polynomial import expand
 
-
-v = (Number(1)/(Number(1)/a + c/(a*b)) + ((a*b*c) + a*c**Number(2))/(b+c)**Number(2) - a)
-
-print repr(rational_expand(v))
+v = ((1/((x+y)**2+1))**Number(1,2))*((1/((x+y)**2+1))**Number(1,2)-1)/(x+1)
+print v

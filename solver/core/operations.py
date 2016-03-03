@@ -4,7 +4,6 @@ from .expr import Expression
 from .function import Function
 
 
-
 class Eq(Expression):
 
     symbol = '='
@@ -15,7 +14,7 @@ class Eq(Expression):
 
 class Pow(Expression):
 
-    symbol = '**'
+    symbol = '^'
     precedence = 4
     association = 'right'
     commutative = False
@@ -30,9 +29,6 @@ class Pow(Expression):
         self.base = args[0]
         self.exponent = args[1]
 
-    def __str__(self):
-        return self.symbol
-
 
 class Mul(Expression):
 
@@ -41,9 +37,6 @@ class Mul(Expression):
     association = 'left'
     commutative = True
 
-    def __str__(self):
-        return self.symbol
-
 
 class Add(Expression):
 
@@ -51,9 +44,6 @@ class Add(Expression):
     precedence = 2
     association = 'left'
     commutative = True
-
-    def __str__(self):
-        return self.symbol
 
 
 def base(u):
@@ -162,4 +152,9 @@ def rationalise(u):
 
 def rational_expand(u):
     from ..polynomials.general_polynomial import expand
-    return expand(rationalise(u))
+    v = rationalise(u)
+    return rationalise(expand(numerator(v)) * expand(denominator(v)))
+
+def rational_variables(u):
+    from ..polynomials.general_polynomial import variables
+    return variables(denominator(u)) | variables(numerator(u))

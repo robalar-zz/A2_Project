@@ -14,6 +14,3 @@ class Function(Expression):
             raise ValueError('Too many args passed to {}'.format(self.name))
 
         self.args = list(args)
-
-    def __repr__(self):
-        return '{}({})'.format(self.name, str(self.args)[1:-1])
