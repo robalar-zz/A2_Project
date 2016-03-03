@@ -19,9 +19,6 @@ class Number(Atom):
         if len(args) == 2:
             return super(Number, cls).__new__(Rational)
 
-    def __repr__(self):
-        return str(self.value)
-
     def __deepcopy__(self, memo):
         return self
 
