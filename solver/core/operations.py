@@ -61,7 +61,7 @@ def exponent(u):
     if isinstance(u, Pow):
         return u.exponent
     if isinstance(u, Number):
-        return Undefined
+        return Undefined()
 
 
 def term(u):
@@ -75,7 +75,7 @@ def term(u):
     if isinstance(u, Mul) and not isinstance(u.args[0], Number):
         return u
     if isinstance(u, Number):
-        return Undefined
+        return Undefined()
 
 
 def const(u):
@@ -86,7 +86,7 @@ def const(u):
     if isinstance(u, Mul) and not isinstance(u.args[0], Number):
         return Number(1)
     if isinstance(u, Number):
-        return Undefined
+        return Undefined()
 
 
 def numerator(u):
