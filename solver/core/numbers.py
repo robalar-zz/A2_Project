@@ -63,7 +63,7 @@ class Number(Atom):
 
 
 class Undefined(object):
-    """ For calculations where the result is known i.e. 0/0, 0^0, oo/oo
+    """ For calculations where the result is not known i.e. 0/0, 0^0, oo/oo
     """
 
     def __add__(self, other):
