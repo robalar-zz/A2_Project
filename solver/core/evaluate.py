@@ -14,9 +14,6 @@ def evaluate_add(p, q):
     """
     if not isinstance(p, Number) or not isinstance(q, Number):
         raise ValueError('p and q must be Number instances')
-
-    if isinstance(p, Undefined) or isinstance(q, Undefined):
-        return Undefined()
     else:
         return Number(p.value + q.value)
 
@@ -34,9 +31,6 @@ def evaluate_mul(p, q):
     """
     if not isinstance(p, Number) or not isinstance(q, Number):
         raise ValueError('p and q must be Number instances not {} and {}'.format(type(p), type(q)))
-
-    if isinstance(p, Undefined) or isinstance(q, Undefined):
-        return Undefined()
     else:
         return Number(p.value * q.value)
 
@@ -54,10 +48,10 @@ def evaluate_power(v, n):
     """
 
     if not isinstance(n, Integer):
-        raise ValueError('n must be an integer')
+        raise ValueError('n must be an Integer')
 
     if not isinstance(v, (Integer, Rational)):
-        raise ValueError('v must be an integer or rational')
+        raise ValueError('v must be an Integer or Rational')
 
     # v != 0 or v != 0/n
     if (isinstance(v, Rational) and v.numerator != 0) or (isinstance(v, Integer) and v != Number(0)):
@@ -79,5 +73,5 @@ def evaluate_power(v, n):
     else:
         if n >= Number(1):  # 0^a -> 0, a >= 1
             return Number(0)
-        elif n <= Number(0): # 0^a -> undefined, a <= 0 i.e 0^-2 = (1/0)^2 = undefined
+        elif n <= Number(0):  # 0^a -> undefined, a <= 0 i.e 0^-2 = (1/0)^2 = undefined
             return Undefined()
