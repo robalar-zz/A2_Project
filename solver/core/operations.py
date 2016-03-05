@@ -1,4 +1,4 @@
-from .numbers import Number, Undefined, Rational
+from .numbers import Number, Undefined, Rational, Integer
 from .symbol import Symbol
 from .expr import Expression
 from .function import Function
@@ -117,44 +117,3 @@ def denominator(u):
         return denominator(v) * denominator(u/v)
     else:
         return Number(1)
-
-
-def rationalise_sum(u, v):
-    """
-        m/r + n/s => (ms + nr)/(rs)
-    """
-
-    m = numerator(u)
-    r = denominator(u)
-    n = numerator(v)
-    s = denominator(v)
-
-    if r == Number(1) and s == Number(1):
-        return u + v
-    else:
-        return rationalise_sum(m * s, n * r)/(r * s)
-
-
-def rationalise(u):
-    if isinstance(u, Pow):
-        return rationalise(u.base) ** u.exponent
-    elif isinstance(u, Mul):
-        f = u.args[0]
-        return rationalise(f) * rationalise(u/f)
-    elif isinstance(u, Add):
-        f = u.args[0]
-        g = rationalise(f)
-        r = rationalise(u - f)
-        return rationalise_sum(g, r)
-    else:
-        return u
-
-
-def rational_expand(u):
-    from ..polynomials.general_polynomial import expand
-    v = rationalise(u)
-    return rationalise(expand(numerator(v)) * expand(denominator(v)))
-
-def rational_variables(u):
-    from ..polynomials.general_polynomial import variables
-    return variables(denominator(u)) | variables(numerator(u))
