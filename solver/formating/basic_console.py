@@ -32,8 +32,17 @@ def basic_console(u, prior_presedence=0):
 
 
 def format_operator(u):
-    l = [basic_console(x, u.precedence) for x in joinit(u.args, u.symbol)]
-    return ''.join(l)
+    if isinstance(u, Mul):
+        l = [basic_console(x, u.precedence) for x in joinit(u.args, '')]
+        l = ['-' if x == '-1' else x for x in l]
+    elif isinstance(u, Add):
+        l = [basic_console(x, u.precedence) for x in joinit(u.args, ' ' + u.symbol + ' ')]
+    else:
+        l = [basic_console(x, u.precedence) for x in joinit(u.args, u.symbol)]
+
+    s = ''.join(l)
+    return s.replace('+ -', '- ')
+
 
 
 def joinit(iterable, delimiter):
