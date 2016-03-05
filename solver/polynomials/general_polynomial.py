@@ -123,12 +123,14 @@ def coeff_var_monomial(u, s):
 
             if not var_part:
                 var_part = [Number(1)]
-
-            return [auto_simplify(Mul(*coeff_part)), auto_simplify(Mul(*var_part))]
+            if not coeff_part:
+                coeff_part = [Number(1)]
 
         else:
-            var_part = auto_simplify(term(u))  # Needed as term can return Mul(u)
-            return [const(u), var_part]
+            coeff_part = [Number(1)]
+            var_part = [u]
+
+        return [auto_simplify(Mul(*coeff_part)), auto_simplify(Mul(*var_part))]
 
 
 def collect_terms(u, variable_set):
