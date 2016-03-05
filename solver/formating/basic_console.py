@@ -1,6 +1,7 @@
 from ..core.operations import Add, Mul, Pow
 from ..core.symbol import Symbol
 from ..core.numbers import Number, Rational
+from ..core.function import Function
 
 
 def basic_console(u, prior_presedence=0):
@@ -22,6 +23,9 @@ def basic_console(u, prior_presedence=0):
             result = '(' + result + ')'
 
         return result
+
+    if isinstance(u, Function):
+        return u.name + '(' + str(u.args)[1:-1] + ')'
 
     else:
         return u
