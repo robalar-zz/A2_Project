@@ -39,8 +39,8 @@ def variables_test():
 
 def coeff_var_monomial_test():
     assert_equal(isinstance(coeff_var_monomial(Number(3)*x**Number(3)+Number(2)*x, x), Undefined), True)
-    assert_equal(coeff_var_monomial(Number(3)*x*y**Number(2), {x,y}), [[Number(3)], [x, y**Number(2)]])
-    assert_equal(coeff_var_monomial(x**Number(3), x), [[Number(1)], [x**Number(3)]])
+    assert_equal(coeff_var_monomial(Number(3)*x*y**Number(2), {x,y}), [Number(3), x*y**Number(2)])
+    assert_equal(coeff_var_monomial(x**Number(3), x), [Number(1), x**Number(3)])
 
 
 def collect_terms_test():
@@ -64,3 +64,7 @@ def expand_test():
     assert_equal(expand((x+2)**Number(5,2)), (x+2)**Number(1,2)*x**2 + (x+2)**Number(1,2)*4*x + 4*(x+2)**Number(1,2))
     assert_equal(expand((x*(y+1)**Number(3,2)+1)*(x*(y+1)**Number(3,2)-1)), x**2*y**3 + 3*x**2*y**2+3*x**2*y+x**2-1)
     assert_equal(expand((x*(y+1)**Number(1,2)+1)**4), x**4*y**2+2*x**4*y+x**4+4*x**3*y*(y+1)**Number(1,2)+4*x**3*(y+1)**Number(1,2)+6*x**2*y+6*x**2+4*x*(y+1)**Number(1,2)+1)
+
+def mononomials_test():
+    assert_equal(mononomials(x), {x})
+    assert_equal(mononomials(x**2 + 3*y + 6), {x**2, 3*y, Number(6)})

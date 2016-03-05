@@ -1,7 +1,7 @@
 from ..core.numbers import Integer, Number, Undefined, Rational
-from ..core.operations import Pow, base, exponent, Mul, Add, numerator, denominator
+from ..core.operations import Pow, base, exponent, Mul, Add, const, term
 from ..core.expr import free_of_set
-from ..core.atoms import Atom
+from ..core.simplify import auto_simplify
 
 from math import factorial, floor
 
@@ -49,6 +49,13 @@ def is_polynomial_gpe(u, v):
         return True
 
 
+def mononomials(u):
+    if isinstance(u, Add):
+        return set(u.args)
+    else:
+        return {u}
+
+
 def variables(u):
     if isinstance(u, Add):
         v = set(u.args)
@@ -91,6 +98,7 @@ def _variables(u):
             v |= {item}
     return v
 
+
 def coeff_var_monomial(u, s):
     """ Returns the coefficient and variable part of a monomial.
 
@@ -110,13 +118,17 @@ def coeff_var_monomial(u, s):
         return Undefined()
     else:
         if isinstance(u, Mul):
-            coefficient_part = [c for c in u.args if free_of_set(c, variable_set)]
-            variable_part = [s for s in u.args if s not in coefficient_part]
-        else:
-            variable_part = [u]
-            coefficient_part = [Number(1)]
+            coeff_part = [c for c in u.args if free_of_set(c, variable_set)]
+            var_part = [s for s in u.args if s not in coeff_part]
 
-    return [coefficient_part, variable_part]
+            if not var_part:
+                var_part = [Number(1)]
+
+            return [auto_simplify(Mul(*coeff_part)), auto_simplify(Mul(*var_part))]
+
+        else:
+            var_part = auto_simplify(term(u))  # Needed as term can return Mul(u)
+            return [const(u), var_part]
 
 
 def collect_terms(u, variable_set):
@@ -137,7 +149,7 @@ def collect_terms(u, variable_set):
                 combined = False
                 for i, other_operand in enumerate(T):
                     if f[1] == other_operand[1]:
-                        T[i] = [[Mul(*f[0]) + Mul(*other_operand[0])], f[1]]
+                        T[i] = [f[0] + other_operand[0], f[1]]
                         combined = True
                         break
                 if not combined:
@@ -145,8 +157,7 @@ def collect_terms(u, variable_set):
 
         v = Number(0)
         for item in T:
-            item[0].extend(item[1])
-            v = v + Mul(*item[0])
+            v = v + item[0] * item[1]
         return v
 
 
@@ -233,5 +244,6 @@ def distribute(u):
     return s
 
 
+# FIXME: Implement!
 def degree_monomial(u):
     pass
