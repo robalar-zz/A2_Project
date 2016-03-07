@@ -37,6 +37,39 @@ def exponent_test():
     assert_is_instance(exponent(Number(2)), Undefined)
     assert_is_instance(exponent(Number(4,5)), Undefined)
 
-# TODO: Finish these tests
+
 def term_test():
-    pass
+    x = Symbol('x')
+    y = Symbol('y')
+
+    assert_equal(term(x), Mul(x))
+    assert_equal(term(x+5), Mul(x+5))
+    assert_equal(term(x**5), Mul(x**5))
+    assert_equal(term(sin(x)), Mul(sin(x)))
+
+    assert_equal(term(6*x*3), Mul(x))
+    assert_equal(term(10*x*y), x*y)
+
+    assert_equal(term(x*y), x*y)
+
+    assert_is_instance(term(Number(1)), Undefined)
+    assert_is_instance(term(Number(3,4)), Undefined)
+
+
+def const_test():
+    x = Symbol('x')
+    y = Symbol('y')
+
+    assert_equal(const(x), Number(1))
+    assert_equal(const(1+x), Number(1))
+    assert_equal(const(y+x), Number(1))
+    assert_equal(const(x**3), Number(1))
+    assert_equal(const(sin(x)), Number(1))
+
+    assert_equal(const(6*x*3), Number(18))
+    assert_equal(const(10*x*y), Number(10))
+
+    assert_equal(const(x*y), Number(1))
+
+    assert_is_instance(const(Number(7)), Undefined)
+    assert_is_instance(const(Number(1,4)), Undefined)
