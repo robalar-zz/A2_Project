@@ -2,6 +2,7 @@ from ..core.operations import Add, Mul, Pow
 from ..core.symbol import Symbol
 from ..core.numbers import Number, Rational
 from ..core.function import Function
+from ..calculus.differentate import d
 
 
 def basic_console(u, prior_presedence=0):
@@ -25,7 +26,7 @@ def basic_console(u, prior_presedence=0):
         return result
 
     if isinstance(u, Function):
-        return u.name + '(' + str(u.args)[1:-1] + ')'
+        return format_function(u)
 
     else:
         return u
@@ -43,6 +44,12 @@ def format_operator(u):
     s = ''.join(l)
     return s.replace('+ -', '- ')
 
+
+def format_function(u):
+    if isinstance(u, d):
+        return u.name + '(' + str(u.args[0]) + ')'
+    else:
+        return u.name + '(' + str(u.args)[1:-1] + ')'
 
 
 def joinit(iterable, delimiter):
