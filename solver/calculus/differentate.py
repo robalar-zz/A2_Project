@@ -55,17 +55,21 @@ def derivative(u, x):
             v = u.args[0]
             return cos(v) * derivative(v, x)
 
-        if isinstance(u, cos):
+        elif isinstance(u, cos):
             v = u.args[0]
             return -sin(v) * derivative(v, x)
 
-        if isinstance(u, tan):
+        elif isinstance(u, tan):
             v = u.args[0]
             return sec(v)**2 * derivative(v, x)
 
-        if isinstance(u, e):
+        elif isinstance(u, e):
             v = u.args[0]
             return u * derivative(v, x)
+
+        else:
+            v = u.args[0]
+            return d(u, x) * derivative(v, x)
 
     elif free_of(u, x):
         return Number(0)
