@@ -36,7 +36,6 @@ def rationalize_test():
     assert_equal(rationalise(1/(1 + 1/x)**Number(1,2)+ (1+1/x)**Number(3,2)), (x**2 + (x+1)**2)/(x**2*((x+1)/x)**Number(1,2)))
 
 
-# FIXME
 def rational_expand_test():
 
     x = Symbol('x')
