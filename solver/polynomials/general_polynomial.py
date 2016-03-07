@@ -16,7 +16,7 @@ def is_mononomial_gpe(u, v):
         return True
 
     elif isinstance(u, Pow):
-        if base(u) in variable_set and isinstance(exponent(u), Number) and exponent(u) > Number(0):  #FIXME
+        if base(u) in variable_set and isinstance(exponent(u), Integer) and exponent(u) > Number(1):  #FIXME
             return True
         else:
             return False

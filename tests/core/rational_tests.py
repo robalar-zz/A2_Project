@@ -1,6 +1,8 @@
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_is_instance
 
 from solver.core.rationals import *
+from solver.core.numbers import Undefined
+
 
 def is_rationalized_test():
 
@@ -41,4 +43,6 @@ def rational_expand_test():
     y = Symbol('y')
 
     v = ((1/((x+y)**2+1))**Number(1, 2)+1)*((1/((x+y)**2+1))**Number(1, 2)-1)/(x+1)
-    assert_equal(rational_expand(v), -1/(1+x) + 1/(1+x)*(1+(x+y)**2))
+    assert_equal(rational_expand(v), (-x**2 - 2*x*y - y**2)/(x**3 + x**2 + 2*x**2*y + 2*x*y + x*y**2 +y**2 + x + 1))
+
+    assert_is_instance(rational_expand(1/(x**2+x-x*(x+1))), Undefined)

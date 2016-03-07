@@ -1,6 +1,6 @@
 from .symbol import Symbol
 from .function import Function
-from .numbers import Number, Integer
+from .numbers import Number, Integer, Undefined
 from .operations import denominator, numerator, Add, Pow, Mul
 from ..polynomials.general_polynomial import coeff_var_monomial, mononomials, variables, expand, is_expanded
 from .simplify import auto_simplify
@@ -59,9 +59,23 @@ def rationalise(u):
         return u
 
 
-# FIXME
 def rational_expand(u):
-    raise NotImplementedError
+
+    if isinstance(u, Undefined):
+        return Undefined()
+    if is_rational_expanded(u):
+        return u
+    else:
+        r = expand(numerator(u))
+        s = expand(denominator(u))
+
+        f = rationalise(r/s)
+
+        return rational_expand(f)
+
+
+def is_rational_expanded(u):
+    return is_expanded(numerator(u)) and is_expanded(denominator(u)) and is_rationalized(u)
 
 
 def rational_variables(u):
