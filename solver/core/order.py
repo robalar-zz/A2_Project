@@ -19,7 +19,7 @@ def isordered(u, v):
     #O-3
     if (isinstance(u, Mul) and isinstance(v, Mul)) or (isinstance(u, Add) and isinstance(v, Add)):
 
-        m = len(u.args) - 1
+        m = len(u.args) - 1  # TODO: Just use [-1]?
         n = len(v.args) - 1
 
         if u.args[m] != v.args[n]:
@@ -44,7 +44,7 @@ def isordered(u, v):
     #O-6
     if isinstance(u, Function) and isinstance(v, Function):
         if u.name != v.name:
-            return u.name < u.name
+            return u.name < v.name
         else:
             m = len(u.args) - 1
             n = len(v.args) - 1
