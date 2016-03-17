@@ -4,6 +4,7 @@ from .operations import Pow, Mul, Add, base, exponent, term, const
 from .subs import _map
 from .evaluate import *
 from .order import isordered
+from .matix import Matrix
 
 from fractions import gcd
 
@@ -270,6 +271,19 @@ def _simplify_product_rec(l):
                     return []
                 else:
                     return [p]
+
+            # Does this belong? Rework simplification architecture? TODO?
+            if isinstance(l[0], (Number, Symbol)) and isinstance(l[1], Matrix):
+                new_rows = []
+                for row in l[1].args:
+                    new_rows.append([l[0] * row[i] for i in range(len(row))])
+
+                return [Matrix(*new_rows)]
+
+            elif isinstance(l[0], Matrix) and isinstance(l[1], (Number, Symbol)):
+                return _simplify_product_rec(l[::-1])
+
+
             # SMULREC-1-2
             elif l[0] == Number(1):
                 return [l[1]]
@@ -535,7 +549,7 @@ def auto_simplify(u):
         Returns:
             u in canonical form, could be Number, Symbol or Expression
     """
-    if isinstance(u, (Integer, Symbol)):
+    if isinstance(u, (Integer, Symbol, Matrix)):
         return u
     elif isinstance(u, Rational):
         return simplify_rational(u)

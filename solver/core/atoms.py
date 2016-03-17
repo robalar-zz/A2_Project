@@ -2,9 +2,6 @@ class Base(object):
     """ Base class for all other objects, this is so all types can be manipulated generally.
     """
 
-    def __init__(self):
-        pass
-
     def __add__(self, other):
         from .operations import Add
         from .simplify import auto_simplify

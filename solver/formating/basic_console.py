@@ -3,6 +3,7 @@ from ..core.symbol import Symbol
 from ..core.numbers import Number, Rational
 from ..core.function import Function
 from ..calculus.differentate import d
+from ..core.matix import Matrix
 
 
 def basic_console(u, prior_presedence=0):
@@ -13,6 +14,9 @@ def basic_console(u, prior_presedence=0):
             result = '(' + result + ')'
 
         return result
+
+    if isinstance(u, Matrix):
+        return str(u.args)
 
     if isinstance(u, Symbol):
         return u.name
