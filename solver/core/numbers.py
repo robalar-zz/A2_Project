@@ -79,6 +79,18 @@ class Undefined(object):
         return 'Undefined'
 
 
+class Infinity(Undefined):
+
+    def __gt__(self, other):
+        return True
+
+    def __lt__(self, other):
+        return False
+
+    def __repr__(self):
+        return 'oo'
+
+
 class Integer(Number):
 
     def __init__(self, value):
