@@ -272,18 +272,6 @@ def _simplify_product_rec(l):
                 else:
                     return [p]
 
-            # Does this belong? Rework simplification architecture? TODO?
-            if isinstance(l[0], (Number, Symbol)) and isinstance(l[1], Matrix):
-                new_rows = []
-                for row in l[1].args:
-                    new_rows.append([l[0] * row[i] for i in range(len(row))])
-
-                return [Matrix(*new_rows)]
-
-            elif isinstance(l[0], Matrix) and isinstance(l[1], (Number, Symbol)):
-                return _simplify_product_rec(l[::-1])
-
-
             # SMULREC-1-2
             elif l[0] == Number(1):
                 return [l[1]]
