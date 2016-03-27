@@ -1,88 +1,98 @@
 from .numbers import Number, Integer
 from .symbol import Symbol
-from .operations import Mul, Add, Pow, base, exponent, term
-from .expr import subexpressions
+from .operations import Mul, Add, Pow, subexpressions, base, exponent, term
 from .function import Function
 
 import itertools
+import functools
 
 
-def isordered(u, v):
-    # O-1
-    if isinstance(u, Number) and isinstance(v, Number):
-        return u < v
+def _isordered(u, v):
 
-    #O-2
-    if isinstance(u, Symbol) and isinstance(v, Symbol):
-        return u.name < v.name
+    def _comp(u, v):
+        # O-1
+        if isinstance(u, Number) and isinstance(v, Number):
+            return u < v
 
-    #O-3
-    if (isinstance(u, Mul) and isinstance(v, Mul)) or (isinstance(u, Add) and isinstance(v, Add)):
-
-        m = len(u.args) - 1  # TODO: Just use [-1]?
-        n = len(v.args) - 1
-
-        if u.args[m] != v.args[n]:
-            return isordered(u.args[m], v.args[n])
-
-        k = zip(u.args[::-1], v.args[::-1]) # zip last to last
-
-        for j in k:
-            if j[0] != j[1]:
-                return isordered(j[0], j[1])
-
-        if all(j[0] == j[1] for j in k):
-            return m < n
-
-    #O-4
-    if isinstance(u, Pow) and isinstance(v, Pow):
-        if base(u) != base(v):
-            return isordered(base(u), base(v))
-        if base(u) == base(u):
-            return isordered(exponent(u), exponent(v))
-
-    #O-6
-    if isinstance(u, Function) and isinstance(v, Function):
-        if u.name != v.name:
+        #O-2
+        if isinstance(u, Symbol) and isinstance(v, Symbol):
             return u.name < v.name
-        else:
-            m = len(u.args) - 1
+
+        #O-3
+        if (isinstance(u, Mul) and isinstance(v, Mul)) or (isinstance(u, Add) and isinstance(v, Add)):
+
+            m = len(u.args) - 1  # TODO: Just use [-1]?
             n = len(v.args) - 1
 
-            k = zip(u.args, v.args)  # zip first to first
+            if u.args[m] != v.args[n]:
+                return _isordered(u.args[m], v.args[n])
+
+            k = zip(u.args[::-1], v.args[::-1]) # zip last to last
 
             for j in k:
                 if j[0] != j[1]:
-                    return isordered(j[0], j[1])
+                    return _isordered(j[0], j[1])
 
             if all(j[0] == j[1] for j in k):
                 return m < n
 
-    #O-7
-    if isinstance(u, Number) and not isinstance(v, Number):
-        return True
+        #O-4
+        if isinstance(u, Pow) and isinstance(v, Pow):
+            if base(u) != base(v):
+                return _isordered(base(u), base(v))
+            if base(u) == base(u):
+                return _isordered(exponent(u), exponent(v))
 
-    #O-8
-    if isinstance(u, Mul) and isinstance(v, (Pow, Add, Symbol, Function)):
-        return isordered(u, Mul(v))
+        #O-6
+        if isinstance(u, Function) and isinstance(v, Function):
+            if u.name != v.name:
+                return u.name < v.name
+            else:
+                m = len(u.args) - 1
+                n = len(v.args) - 1
 
-    #O-9
-    if isinstance(u, Pow) and isinstance(v, (Add, Symbol, Function)):
-        return isordered(u, Pow(v, Number(1)))
+                k = zip(u.args, v.args)  # zip first to first
 
-    #O-10
-    if isinstance(u, Add) and isinstance(v, (Symbol, Function)):
-        return isordered(u, Add(v))
+                for j in k:
+                    if j[0] != j[1]:
+                        return _isordered(j[0], j[1])
 
-    #O-12
-    if isinstance(u, Function) and isinstance(v, Symbol):
-        if u.name == v.name:
-            return False
-        else:
-            return u.name < v.name
+                if all(j[0] == j[1] for j in k):
+                    return m < n
 
-    #O-13
-    return not isordered(v, u)
+        #O-7
+        if isinstance(u, Number) and not isinstance(v, Number):
+            return True
+
+        #O-8
+        if isinstance(u, Mul) and isinstance(v, (Pow, Add, Symbol, Function)):
+            return _isordered(u, Mul(v))
+
+        #O-9
+        if isinstance(u, Pow) and isinstance(v, (Add, Symbol, Function)):
+            return _isordered(u, Pow(v, Number(1)))
+
+        #O-10
+        if isinstance(u, Add) and isinstance(v, (Symbol, Function)):
+            return _isordered(u, Add(v))
+
+        #O-12
+        if isinstance(u, Function) and isinstance(v, Symbol):
+            if u.name == v.name:
+                return False
+            else:
+                return u.name < v.name
+
+        #O-13
+        return not _isordered(v, u)
+
+    r = _comp(u, v)
+    if r:
+        return -1
+    else:
+        return 1
+
+canonical_order = functools.cmp_to_key(_isordered)
 
 
 def is_asae(u):
@@ -106,7 +116,7 @@ def is_asae(u):
             result = result and base(i) != base(j)
 
             if ui < uj:
-                result = result and isordered(i, j)
+                result = result and _isordered(i, j)
 
         return result
 
@@ -121,7 +131,7 @@ def is_asae(u):
             result = result and term(i) != term(j)
 
             if ui < uj:
-                result = result and isordered(i, j)
+                result = result and _isordered(i, j)
 
         return result
 
