@@ -1,4 +1,4 @@
-from .numbers import Number, Undefined, Rational, Integer
+from .numbers import Number, Integer, Rational, Undefined
 from .symbol import Symbol
 from .expr import Expression
 from .function import Function
@@ -19,15 +19,30 @@ class Pow(Expression):
     association = 'right'
     commutative = False
     
-    def __init__(self, *args):
+    @property
+    def base(self):
+        return self.args[0]
 
-        if len(args) != 2:
-            raise ValueError('Pow must have 2 args (base, exponent)')
+    @property
+    def exponent(self):
+        return self.args[1]
 
-        super(Pow, self).__init__(*args)
+    @classmethod
+    def simplify(cls, seq):
+        base = seq[0]
+        exponent = seq[1]
 
-        self.base = args[0]
-        self.exponent = args[1]
+        if base == Number(0):
+            if exponent > Number(0):
+                return [Number(0)]
+            else:
+                return [Undefined()]
+        elif exponent == Number(1):
+            return [base]
+        elif base == Number(1):
+            return [Number(1)]
+        else:
+            return [base, exponent]
 
 
 class Mul(Expression):
@@ -37,6 +52,56 @@ class Mul(Expression):
     association = 'left'
     commutative = True
 
+    @classmethod
+    def simplify(cls, seq):
+        coefficient = Number(1)
+        terms = {}
+
+        for item in seq:
+            if isinstance(item, Number) and item != Number(1):
+                coefficient *= item
+
+                if isinstance(coefficient, Undefined):
+                    return [Undefined()]
+
+                continue
+
+            # Mul is commutative
+            elif isinstance(item, Mul):
+                seq.extend(item.args)
+                continue
+
+            base_part = base(item)
+            exponent_part = exponent(item)
+
+
+            if base_part in terms:
+                terms[base_part] += exponent_part
+            else:
+                terms[base_part] = exponent_part
+
+        if coefficient == Number(0):
+            return [Number(0)]
+
+        new_args = []
+
+        for base_part, exponent_part in terms.items():
+
+            if exponent_part == Number(1):
+                new_args.append(base_part)
+            elif base_part == Number(1):
+                new_args.append(Number(1))
+            else:
+                new_args.append(Pow(base_part, exponent_part))
+
+        if coefficient != Number(1):
+            new_args.insert(0, coefficient)
+
+        return new_args
+
+
+
+
 
 class Add(Expression):
 
@@ -44,6 +109,83 @@ class Add(Expression):
     precedence = 2
     association = 'left'
     commutative = True
+
+    @classmethod
+    def simplify(cls, seq):
+        coefficient = Number(0)
+        terms = {}
+
+        for item in seq:
+            # Numbers are added directly to the coefficient
+            if isinstance(item, Number) and item != Number(0):
+                if isinstance(item, Undefined):
+                    return [item]  # Sums containing Undefined are also Undefined.
+                else:
+                    coefficient += item
+                continue
+
+            # Addition is commutative
+            elif isinstance(item, Add):
+                seq.extend(item.args)
+                continue
+
+            coeff_part = const(item)
+            term_part = term(item)
+
+
+            if term_part in terms:
+                terms[term_part] += coeff_part
+            else:
+                terms[term_part] = coeff_part
+
+        new_args = []
+
+        for term_part, coeff_part in terms.items():
+
+            # 0 * x = 0
+            if coeff_part == Number(0):
+                continue
+            # 1 * x = x
+            elif coeff_part == Number(1):
+                new_args.append(term_part)
+            else:
+                # Commutativity
+                if isinstance(term_part, Mul):
+                    m = Mul(coeff_part, *term_part.args)
+                    new_args.append(m)
+                else:
+                    new_args.append(Mul(coeff_part, term_part))
+
+        if coefficient != Number(0):
+            new_args.insert(0, coefficient)
+
+        return new_args
+
+
+
+def free_of(u, t):
+    if u == t:
+        return False
+    elif isinstance(u, (Symbol, Integer, Rational)):
+        return True
+    else:
+        for operand in u.args:
+            if not free_of(operand, t):
+                return False
+        return True
+
+
+def free_of_set(u, t_set):
+    return all(free_of(u, t) for t in t_set)
+
+
+def subexpressions(expression, types=Expression):
+    """ Returns the sub-expressions present in an expression.
+    """
+    try:
+        return [x for x in expression.args if isinstance(x, types)]
+    except AttributeError:
+        return []
 
 
 def base(u):
@@ -69,7 +211,7 @@ def term(u):
     # and there is only one constant
 
     if isinstance(u, (Symbol, Add, Pow, Function)):
-        return Mul(u)
+        return u
     if isinstance(u, Mul) and isinstance(u.args[0], Number):
         return Mul(*u.args[1:])
     if isinstance(u, Mul) and not isinstance(u.args[0], Number):

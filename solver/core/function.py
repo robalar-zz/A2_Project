@@ -1,6 +1,5 @@
 from .expr import Expression
 
-
 class Function(Expression):
 
     name = None

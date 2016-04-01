@@ -3,11 +3,12 @@ from .symbol import Symbol
 from .operations import Pow, Mul, Add, base, exponent, term, const
 from .subs import _map
 from .evaluate import *
-from .order import isordered
+from .order import _isordered
 from .matix import Matrix
 
 from fractions import gcd
 
+#~~~~LEGACY CODE~~~~~~~
 
 def simplify_rational(u):
     """ Simplifies a rational down to its canonical form.
@@ -54,7 +55,7 @@ def simplify_rne(u):
             A Integer or Fraction in cononical form, or Undefined()
     """
     def simp_rec(u):
-        if isinstance(u, Integer):
+        if isinstance(u, (Integer, Matrix)):
             return u
 
         elif isinstance(u, Rational):
@@ -287,7 +288,7 @@ def _simplify_product_rec(l):
                 else:
                     return [p]
             # SMULREC-1-4
-            elif isordered(l[1], l[0]):
+            elif _isordered(l[1], l[0]):
                 return [l[1], l[0]]
             # SMULREC-1-5
             else:
@@ -457,7 +458,7 @@ def _simplify_sum_rec(l):
                 else:
                     return [p]
             # SADDREC-1-4
-            elif isordered(l[1], l[0]):
+            elif _isordered(l[1], l[0]):
                 return [l[1], l[0]]
             # SADDREC-1-5
             else:

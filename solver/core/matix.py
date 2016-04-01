@@ -1,53 +1,33 @@
-from .function import Function
 from .numbers import Infinity, Undefined, Number
+from .base import Base
 
 
-class Matrix(Function):
+class Matrix(Number):
 
     name = 'Matrix'
     nargs = Infinity()
 
     def __init__(self, *rows):
-        super(Matrix, self).__init__(*rows)
+        
+        super(Matrix, self).__init__()
+        self.value = _Matrix(rows)
 
         if not all(len(n) == len(rows[0]) for n in rows[1:]):
             raise ValueError('All row of a matrix must be the same length')
 
-        self.m = len(rows)
-        self.n = len(rows[0])
+    @property
+    def m(self):
+        return self.value.m
 
-    def __call__(self, *args, **kwargs):
+    @property
+    def n(self):
+        return self.value.n
 
-        if len(args) == 2 and all(isinstance(x, int) for x in args):
-            i = args[0] - 1
-            j = args[1] - 1
-            try:
-                return self.args[i][j]
-            except IndexError:
-                raise IndexError('Index ({}, {}) is out of range'.format(args[0], args[1]))
+    def __call__(self, i, j):
+        return self.value.array[i][j]
 
-        elif len(kwargs) == 2:
-            try:
-                i = kwargs['i']
-                j = kwargs['j']
-            except KeyError:
-                raise ValueError('Incorrect args passed to Matrix, use Matric(i=m, j=n)')
-
-            return self(i, j)
-
-        elif len(kwargs) == 1:
-            if 'i' in kwargs:
-                i = kwargs['i'] - 1
-                return self.args[i]
-            elif 'j' in kwargs:
-                j = kwargs['j']
-                return [self(i, j) for i in range(1, len(self.args)+1)]
-
-        raise ValueError('Unknown call Matrix({}, {})'.format(args, kwargs))
-
-    # TODO: Make type conversion consistent
     def __mul__(self, other):
-        if isinstance(other, Matrix):
+        """if isinstance(other, Matrix):
 
             if self.n != other.m:
                 return Undefined()
@@ -65,7 +45,7 @@ class Matrix(Function):
         else:
             flattened = sum(self.args, [])
             rows = [[flattened[i]*other for i in range(j + self.n)] for j in range(self.m)]
-            return Matrix(*rows)
+            return Matrix(*rows)"""
 
     def __div__(self, other):
         return self * Number(other)**-1
@@ -103,6 +83,38 @@ class Matrix(Function):
     def __iter__(self):
         return iter(sum(self.args, []))  # Flattens matrix
 
+
+class _Matrix(Base):
+
+    def __init__(self, rows):
+        self.array = list(rows)
+
+        self.m = len(rows)
+        self.n = len(rows[0])
+
+    def __mul__(self, other):
+        if isinstance(other, Matrix):
+
+            if self.n != other.m:
+                return Undefined()
+
+            final = []
+            for i in range(self.m):
+                row = []
+                for j in range(other.n):
+                    s = sum([self.array[i][k] * other(k, j) for k in range(self.n)])
+                    row.append(s)
+                final.append(row)
+
+            return Matrix(*final)
+
+        else:
+            flattened = sum(self.array, [])
+            rows = [[flattened[i]*other for i in range(j + self.n)] for j in range(self.m)]
+            return Matrix(*rows)
+
+    def __str__(self):
+        return str(self.array)
 
 def linear_space(start, stop, n=50):
     def gen():

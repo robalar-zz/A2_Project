@@ -1,7 +1,5 @@
 from .numbers import Number, Integer
 from .symbol import Symbol
-from .operations import Mul, Add, Pow, subexpressions, base, exponent, term
-from .function import Function
 
 import itertools
 import functools
@@ -66,7 +64,7 @@ def _isordered(u, v):
 
         #O-8
         if isinstance(u, Mul) and isinstance(v, (Pow, Add, Symbol, Function)):
-            return _isordered(u, Mul(v))
+            return _isordered(u, Mul(v, simplify=False))
 
         #O-9
         if isinstance(u, Pow) and isinstance(v, (Add, Symbol, Function)):
@@ -74,7 +72,7 @@ def _isordered(u, v):
 
         #O-10
         if isinstance(u, Add) and isinstance(v, (Symbol, Function)):
-            return _isordered(u, Add(v))
+            return _isordered(u, Add(v, simplify=False))
 
         #O-12
         if isinstance(u, Function) and isinstance(v, Symbol):
@@ -147,3 +145,6 @@ def is_asae(u):
         return result
 
     return False
+
+from .operations import Mul, Add, Pow, subexpressions, base, exponent, term
+from .function import Function

@@ -1,4 +1,4 @@
-from .atoms import Atom
+from .base import Atom
 from .numbers import Number
 
 
@@ -29,6 +29,8 @@ class Symbol(Atom):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __repr__(self):
+        return self.name
 
 class ReservedSymbol(Symbol):
     """ Used to represent numbers like pi and e that have values but are imprecise.

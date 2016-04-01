@@ -1,18 +1,57 @@
-from .atoms import Base, Atom
-from .numbers import Number, Integer, Rational
-from .symbol import Symbol
-
+from .base import Base
 
 class Expression(Base):
 
-    def __init__(self, *args):
-        super(Expression, self).__init__()
+    commutative = True
 
-        self.args = [Number(x) if isinstance(x, (long, int, float)) else x for x in args]
+    def __new__(cls, *terms, **kwargs):
 
-        if any(isinstance(x, (long, int, float)) for x in self.args):
-            o = [x for x in args if isinstance(x, (long, int, float))]
-            raise ValueError('Tried to create expression with non-basic types: {}'.format(o))
+        from .order import canonical_order
+        from .common import convert_type
+
+        if 'simplify' in kwargs:
+            simp = kwargs['simplify']
+        else:
+            simp = True
+
+        args = list(map(convert_type, terms))
+
+        if simp:
+            args = cls.simplify(args)
+
+            if len(args) == 1:
+                return args[0]
+
+        if cls.commutative:
+            args.sort(key=canonical_order)
+
+        obj = super(Expression, cls).__new__(cls)
+        obj.args = args
+
+        return obj
+
+    @classmethod
+    def simplify(cls, seq):
+        """ Simplifies args of the expression, in respect to that expression. Should be overidden for majority of cases.
+
+        This method is called during the __new__ stage of the creation of a Expression subclass (but not if
+        simplify=False is passed in the constructor).
+        This enables simplification to occur *before* the creation of the class that was specified.
+        This is important as simplification can result in transformation of the root node, i.e:
+
+        x + x -> 2x, Add(x, x) -> Mul(2, x)
+
+        Args:
+            cls: The class simplify is being called from (automatically fulfilled)
+            seq: The args of the Expression
+
+        Returns:
+            list of simplified args
+
+        """
+
+        # In case child class does not need to implement simplification leave the args untouched
+        return seq
 
     def __eq__(self, other):
         if self.__class__ == other.__class__:
@@ -23,27 +62,5 @@ class Expression(Base):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-
-def free_of(u, t):
-    if u == t:
-        return False
-    elif isinstance(u, (Symbol, Integer, Rational)):
-        return True
-    else:
-        for operand in u.args:
-            if not free_of(operand, t):
-                return False
-        return True
-
-
-def free_of_set(u, t_set):
-    return all(free_of(u, t) for t in t_set)
-
-
-def subexpressions(expression, types=Expression):
-    """ Returns the sub-expressions present in an expression.
-    """
-    try:
-        return [x for x in expression.args if isinstance(x, types)]
-    except AttributeError:
-        return []
+    def __repr__(self):
+        return self.__class__.__name__ + str(self.args)
