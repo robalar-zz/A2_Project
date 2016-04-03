@@ -8,7 +8,25 @@ class Eq(Expression):
 
     symbol = '='
 
-    def __new__(cls, *args):
+    def __new__(cls, lhs, rhs):
+        raise NotImplementedError
+
+
+class NEq(Eq):
+
+    symbol = '!='
+
+class LessThan(Eq):
+
+    symbol = '<'
+
+
+# TODO define all binary ops
+class Not(Expression):
+
+    symbol = '~'
+
+    def __new__(cls, arg):
         raise NotImplementedError
 
 
@@ -98,9 +116,6 @@ class Mul(Expression):
             new_args.insert(0, coefficient)
 
         return new_args
-
-
-
 
 
 class Add(Expression):
