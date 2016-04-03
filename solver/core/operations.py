@@ -9,7 +9,7 @@ class Eq(Expression):
     symbol = '='
 
     def __new__(cls, lhs, rhs):
-        raise NotImplementedError
+        return super(Eq, cls).__new__(lhs, rhs)
 
 
 class NEq(Eq):
@@ -26,24 +26,15 @@ class Not(Expression):
 
     symbol = '~'
 
-    def __new__(cls, arg):
-        raise NotImplementedError
-
 
 class And(Expression):
 
     symbol = '/\\'
 
-    def __new__(cls, *args):
-        raise NotImplementedError
-
 
 class Or(Expression):
 
     symbol = '\\/'
-
-    def __new__(cls, *args):
-        raise NotImplementedError
 
 
 class Pow(Expression):
