@@ -30,6 +30,22 @@ class Not(Expression):
         raise NotImplementedError
 
 
+class And(Expression):
+
+    symbol = '/\\'
+
+    def __new__(cls, *args):
+        raise NotImplementedError
+
+
+class Or(Expression):
+
+    symbol = '\\/'
+
+    def __new__(cls, *args):
+        raise NotImplementedError
+
+
 class Pow(Expression):
 
     symbol = '^'
