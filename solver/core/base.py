@@ -1,7 +1,29 @@
+from abc import abstractmethod, ABCMeta
+
+
 class Base(object):
     """ Base class for all other objects, this is so all types can be manipulated generally.
+
+    This class is an abstract base class (direct instances of it can never be created), and defined certain methods that
+    must be overridden by its children, at the very least with a call to super(...) to enable default behaviour.
+
+    To write an object that derives from Base the following methods *must* be implemented;
+    - __mul__
+    - __pow__
+    - __eq__
+    - __lt__
+
+    These methods should return a known iteraction (ie Number + Number -> Number) or a call to super(...), which will
+    eventually create the apropriate operator instance. Of course other methods can be overidden but this should not be
+    necicerry for most use cases.
+
     """
 
+    __metaclass__ = ABCMeta
+
+    #Arithmetic magic methods
+
+    @abstractmethod
     def __mul__(self, other):
         from .operations import Mul
         return Mul(self, other)
@@ -9,10 +31,15 @@ class Base(object):
     def __rmul__(self, other):
         return self * other
 
+    @abstractmethod
     def __pow__(self, power, modulo=None):
         from .operations import Pow
         return Pow(self, power)
 
+    def __rpow__(self, power, modulo=None):
+        return self ** power
+
+    @abstractmethod
     def __add__(self, other):
         from .operations import Add
         return Add(self, other)
@@ -23,11 +50,59 @@ class Base(object):
     def __sub__(self, other):
         return self + -1 * other
 
+    def __rsub__(self, other):
+        return other + -1 * self
+
     def __div__(self, other):
         return self * other**-1
+
+    def __rdiv__(self, other):
+        return other * self**-1
+
+    # Equality magic methods
+
+    @abstractmethod
+    def __eq__(self, other):
+        from .operations import Eq
+        return Eq(self, other)
+
+    def __ne__(self, other):
+        from .operations import NEq
+        return NEq(self, other)
+
+    @abstractmethod
+    def __lt__(self, other):
+        from .operations import LessThan
+        return LessThan(self, other)
+
+    def __gt__(self, other):
+        return other < self
+
+    def __le__(self, other):
+        return (self < other) or (self == other)
+
+    def __ge__(self, other):
+        return (self > other) or (self == other)
+
+    # Boolean magic methods
+
+    def __and__(self, other):
+        from .operations import And
+        return And(self, other)
+
+    def __or__(self, other):
+        from .operations import Or
+        return Or(self, other)
+
+    def __invert__(self):
+        from .operations import Not
+        return Not(self)
 
 
 class Atom(Base):
     """ Base class for any atomic type.
     """
+
+    __metaclass__ = ABCMeta
+
     pass

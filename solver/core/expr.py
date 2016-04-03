@@ -52,12 +52,24 @@ class Expression(Base):
 
         # In case child class does not need to implement simplification leave the args untouched
         return seq
-
+    
+    def __add__(self, other):
+        return super(Expression, self).__add__(other)
+    
+    def __mul__(self, other):
+        return super(Expression, self).__mul__(other)
+    
+    def __pow__(self, power, modulo=None):
+        return super(Expression, self).__pow__(power)
+    
+    def __lt__(self, other):
+        return super(Expression, self).__lt__(other)
+    
     def __eq__(self, other):
         if self.__class__ == other.__class__:
             return self.args == other.args
         else:
-            return False
+            return super(Expression, self).__eq__(other)
 
     def __ne__(self, other):
         return not self.__eq__(other)

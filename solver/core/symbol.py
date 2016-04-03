@@ -18,21 +18,39 @@ class Symbol(Atom):
         if not isinstance(name, str):
             raise TypeError('A symbols name must be a string not {}'.format(type(name)))
         self.name = name
+    
+    def __add__(self, other):
+        return super(Symbol, self).__add__(other)
+    
+    def __mul__(self, other):
+        return super(Symbol, self).__mul__(other)
+        
+    def __pow__(self, power, modulo=None):
+        super(Symbol, self).__pow__(power)
 
     def __eq__(self, other):
 
         if isinstance(other, Symbol):
             return self.name == other.name
         else:
-            return False
+            super(Symbol, self).__eq__(other)
 
     def __ne__(self, other):
-        return not self.__eq__(other)
-
+        if isinstance(other, Symbol):
+            return self.name != other.name
+        else:
+            super(Symbol, self).__ne__(other)
+    
+    def __lt__(self, other):
+        return super(Symbol, self).__lt__(other)
+    
     def __repr__(self):
         return self.name
+    
+    def __or__(self, other):
+        return super(Symbol, self).__or__(other)
 
-class ReservedSymbol(Symbol):
+class ReservedSymbol(Symbol, Number):
     """ Used to represent numbers like pi and e that have values but are imprecise.
 
         Attributes:
@@ -41,30 +59,16 @@ class ReservedSymbol(Symbol):
     """
     def __init__(self, name, value):
         super(ReservedSymbol, self).__init__(name)
-
-        if not isinstance(value, Number):
-            raise ValueError('A reserved symbol must have a Number value')
-
         self.value = value
 
     def __eq__(self, other):
         if isinstance(other, ReservedSymbol):
             return self.name == other.name
-        if isinstance(other, Number):
-            return self.value == other
-
+        else:
+            super(ReservedSymbol, self).__eq__(other)
+            
     def __lt__(self, other):
-        if isinstance(other, Number):
-            return self.value < other
-
-    def __le__(self, other):
-        if isinstance(other, Number):
-            return self.value <= other
-
-    def __gt__(self, other):
-        if isinstance(other, Number):
-            return self.value > other
-
-    def __ge__(self, other):
-        if isinstance(other, Number):
-            return self.value >= other
+        if isinstance(other, ReservedSymbol):
+            return self.name < other.name
+        else:
+            return super(ReservedSymbol, self).__lt__(other)

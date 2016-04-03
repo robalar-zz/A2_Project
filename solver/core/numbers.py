@@ -1,8 +1,8 @@
-import base
+from .base import Atom
 from fractions import Fraction
 
 
-class Number(base.Atom):
+class Number(Atom):
 
     def __new__(cls, *args):
 
@@ -57,32 +57,14 @@ class Number(base.Atom):
         if isinstance(other, Number):
             return self.value == other.value
         else:
-            return False
+            return super(Number, self).__eq__(other)
 
     def __ne__(self, other):
-        return not self.__eq__(other)
+        return ~self.__eq__(other)
 
     def __lt__(self, other):
         if isinstance(other, Number):
             return self.value < other.value
-        else:
-            return False
-
-    def __le__(self, other):
-        if isinstance(other, Number):
-            return self.value <= other.value
-        else:
-            return False
-
-    def __gt__(self, other):
-        if isinstance(other, Number):
-            return self.value > other.value
-        else:
-            return False
-
-    def __ge__(self, other):
-        if isinstance(other, Number):
-            return self.value >= other.value
         else:
             return False
 
