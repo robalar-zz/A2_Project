@@ -26,29 +26,30 @@ class Symbol(Atom):
         return super(Symbol, self).__mul__(other)
         
     def __pow__(self, power, modulo=None):
-        super(Symbol, self).__pow__(power)
+        return super(Symbol, self).__pow__(power)
 
     def __eq__(self, other):
 
         if isinstance(other, Symbol):
             return self.name == other.name
         else:
-            super(Symbol, self).__eq__(other)
+            return super(Symbol, self).__eq__(other)
 
     def __ne__(self, other):
         if isinstance(other, Symbol):
             return self.name != other.name
         else:
-            super(Symbol, self).__ne__(other)
+            return super(Symbol, self).__ne__(other)
     
     def __lt__(self, other):
         return super(Symbol, self).__lt__(other)
-    
+
+    def __hash__(self):
+        return hash(self.name)
+
     def __repr__(self):
         return self.name
-    
-    def __or__(self, other):
-        return super(Symbol, self).__or__(other)
+
 
 class ReservedSymbol(Symbol, Number):
     """ Used to represent numbers like pi and e that have values but are imprecise.
@@ -65,7 +66,7 @@ class ReservedSymbol(Symbol, Number):
         if isinstance(other, ReservedSymbol):
             return self.name == other.name
         else:
-            super(ReservedSymbol, self).__eq__(other)
+            return super(ReservedSymbol, self).__eq__(other)
             
     def __lt__(self, other):
         if isinstance(other, ReservedSymbol):
