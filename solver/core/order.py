@@ -68,7 +68,7 @@ def _isordered(u, v):
 
         #O-9
         if isinstance(u, Pow) and isinstance(v, (Add, Symbol, Function)):
-            return _isordered(u, Pow(v, Number(1)))
+            return _isordered(u, Pow(v, Number(1), simplify=False))
 
         #O-10
         if isinstance(u, Add) and isinstance(v, (Symbol, Function)):
