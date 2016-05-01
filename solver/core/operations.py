@@ -1,15 +1,30 @@
-from .numbers import Number, Integer, Rational, Undefined
+from .numbers import Number, Integer, Rational
 from .symbol import Symbol
 from .expr import Expression
 from .function import Function
+from .symbol import Undefined
 
 
 class Eq(Expression):
 
     symbol = '='
+    commutative = True
 
-    def __new__(cls, lhs, rhs):
-        return super(Eq, cls).__new__(lhs, rhs)
+    def __new__(cls, lhs, rhs, **kwargs):
+
+        return super(Eq, cls).__new__(lhs, rhs, **kwargs)
+
+    @property
+    def lhs(self):
+        return self.args[0]
+
+    @property
+    def rhs(self):
+        return self.args[1]
+
+    @classmethod
+    def simplify(cls, seq):
+        return seq
 
 
 class NEq(Eq):
@@ -57,6 +72,9 @@ class Pow(Expression):
         base = seq[0]
         exponent = seq[1]
 
+        if isinstance(base, Undefined) or isinstance(exponent, Undefined):
+            return [Undefined()]
+
         if base == Number(0):
             if exponent > Number(0):
                 return [Number(0)]
@@ -66,6 +84,11 @@ class Pow(Expression):
             return [base]
         elif base == Number(1):
             return [Number(1)]
+        elif exponent == Number(0):
+            if base != Number(0):
+                return [Number(1)]
+            else:  # Range restrictions?
+                return [Undefined()]
         else:
             return [base, exponent]
 
@@ -82,7 +105,12 @@ class Mul(Expression):
         coefficient = Number(1)
         terms = {}
 
+
         for item in seq:
+
+            if isinstance(item, Undefined):
+                return [Undefined()]
+
             if isinstance(item, Number) and item != Number(1):
                 coefficient *= item
 
@@ -96,7 +124,7 @@ class Mul(Expression):
                 seq.extend(item.args)
                 continue
 
-            base_part = base(item)
+            base_part = base(item)  # HERE IS THE ISSUE!!!!
             exponent_part = exponent(item)
 
 
@@ -138,6 +166,10 @@ class Add(Expression):
         terms = {}
 
         for item in seq:
+
+            if isinstance(item, Undefined):
+                return [Undefined()]
+
             # Numbers are added directly to the coefficient
             if isinstance(item, Number) and item != Number(0):
                 if isinstance(item, Undefined):
@@ -215,7 +247,7 @@ def base(u):
         return u
     if isinstance(u, Pow):
         return u.base
-    if isinstance(u, Number):
+    if isinstance(u, (Number, Undefined)):
         return Undefined()
 
 
@@ -224,7 +256,7 @@ def exponent(u):
         return Number(1)
     if isinstance(u, Pow):
         return u.exponent
-    if isinstance(u, Number):
+    if isinstance(u, (Number, Undefined)):
         return Undefined()
 
 

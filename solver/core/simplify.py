@@ -1,10 +1,11 @@
-from .numbers import Integer, Rational, Undefined, Number
+from .numbers import Integer, Rational, Number
 from .symbol import Symbol
 from .operations import Pow, Mul, Add, base, exponent, term, const
 from .subs import _map
 from .evaluate import *
 from .order import _isordered
 from .matix import Matrix
+from .symbol import Undefined
 
 from fractions import gcd
 

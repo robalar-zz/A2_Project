@@ -1,9 +1,10 @@
 from .symbol import Symbol
 from .function import Function
-from .numbers import Number, Integer, Undefined
+from .numbers import Number, Integer
 from .operations import denominator, numerator, Add, Pow, Mul
 from ..polynomials.general_polynomial import coeff_var_monomial, mononomials, variables, expand, is_expanded
 from .simplify import auto_simplify
+from .symbol import Undefined
 
 
 def is_rationalized(u):

@@ -1,5 +1,5 @@
-from .numbers import Rational, Integer, Number, Undefined
-
+from .numbers import Rational, Integer, Number
+from .symbol import Undefined
 
 def evaluate_add(p, q):
     """ Evaluate an Number sum

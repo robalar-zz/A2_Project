@@ -1,7 +1,10 @@
 from .base import Atom
 from fractions import Fraction
+from .common import convert_method_args
+from .symbol import Undefined, Symbol
 
 
+@convert_method_args('__add__', '__mul__', '__pow__', '__lt__', '__eq__')
 class Number(Atom):
 
     def __new__(cls, *args):
@@ -33,7 +36,10 @@ class Number(Atom):
         from .operations import denominator
 
         if isinstance(power, Integer):
-            return Number(self.value ** power.value)
+            if power < Number(0) and self == Number(0):
+                return Undefined()
+            else:
+                return Number(self.value ** power.value)
         elif isinstance(power, Rational) and is_nth_root(self, denominator(power)):
             v = self.value ** power.value
             return Number(v)
@@ -60,7 +66,7 @@ class Number(Atom):
             return super(Number, self).__eq__(other)
 
     def __ne__(self, other):
-        return ~self.__eq__(other)
+        return not self.__eq__(other)
 
     def __lt__(self, other):
         if isinstance(other, Number):
@@ -68,42 +74,14 @@ class Number(Atom):
         else:
             return False
 
+    def __hash__(self):
+        return hash(self.value)
+
     def __abs__(self):
         return Number(abs(self.value))
 
     def __repr__(self):
         return str(self.value)
-
-class Undefined(object):
-    """ For calculations where the result is not known i.e. 0/0, 0^0, oo/oo
-    """
-
-    def __add__(self, other):
-        return self
-
-    def __sub__(self, other):
-        return self
-
-    def __mul__(self, other):
-        return self
-
-    def __div__(self, other):
-        return self
-
-    def __repr__(self):
-        return 'Undefined'
-
-
-class Infinity(Undefined):
-
-    def __gt__(self, other):
-        return True
-
-    def __lt__(self, other):
-        return False
-
-    def __repr__(self):
-        return 'oo'
 
 
 class Integer(Number):
@@ -137,3 +115,27 @@ def is_nth_root(value, root):
     u = value.value ** (1.0/root.value)
     u = long(round(u))
     return u ** root.value == value.value
+
+
+class ReservedSymbol(Symbol, Number):
+    """ Used to represent numbers like pi and e that have values but are imprecise.
+
+        Attributes:
+            name: name of the symbol
+            value: approximate value of the symbol
+    """
+    def __init__(self, name, value):
+        super(ReservedSymbol, self).__init__(name)
+        self.value = value
+
+    def __eq__(self, other):
+        if isinstance(other, ReservedSymbol):
+            return self.name == other.name
+        else:
+            return super(ReservedSymbol, self).__eq__(other)
+
+    def __lt__(self, other):
+        if isinstance(other, ReservedSymbol):
+            return self.name < other.name
+        else:
+            return super(ReservedSymbol, self).__lt__(other)
