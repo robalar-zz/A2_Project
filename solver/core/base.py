@@ -10,6 +10,7 @@ class Base(object):
     To write an object that derives from Base the following methods *must* be implemented;
     - __mul__
     - __pow__
+    - __add__
     - __eq__
     - __lt__
 
@@ -62,13 +63,11 @@ class Base(object):
     # Equality magic methods
 
     @abstractmethod
-    def __eq__(self, other):
-        from .operations import Eq
-        return Eq(self, other)
+    def __eq__(self, other):  # DO NOT TRY AND IMPLEMENT EQUATIONS HERE!!!!
+        return hash(self) == hash(other)
 
     def __ne__(self, other):
-        from .operations import NEq
-        return NEq(self, other)
+        return not self.__eq__(other)
 
     @abstractmethod
     def __lt__(self, other):
@@ -76,7 +75,7 @@ class Base(object):
         return LessThan(self, other)
 
     def __gt__(self, other):
-        return other < self
+        return not self < other
 
     def __le__(self, other):
         return (self < other) or (self == other)
@@ -98,6 +97,9 @@ class Base(object):
         from .operations import Not
         return Not(self)
 
+    @abstractmethod
+    def __hash__(self):
+        raise NotImplementedError('A class derivied from base must implement its own hash method')
 
 class Atom(Base):
     """ Base class for any atomic type.
