@@ -247,7 +247,7 @@ def base(u):
         return u
     if isinstance(u, Pow):
         return u.base
-    if isinstance(u, (Number, Undefined)):
+    if isinstance(u, (Number)):
         return Undefined()
 
 
@@ -256,7 +256,7 @@ def exponent(u):
         return Number(1)
     if isinstance(u, Pow):
         return u.exponent
-    if isinstance(u, (Number, Undefined)):
+    if isinstance(u, (Number)):
         return Undefined()
 
 
