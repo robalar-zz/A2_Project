@@ -27,10 +27,11 @@ def convert_args(func):
     return func_wrapper
 
 
-def convert_method_args(*args):
+def convert_method_args():
+    to_wrap = ['__add__', '__mul__', '__pow__', '__lt__', '__eq__']
 
     def decorate(cls):
-        for method in args:
+        for method in to_wrap:
             if callable(getattr(cls, method)):
                 setattr(cls, method, convert_args(getattr(cls, method)))
         return cls

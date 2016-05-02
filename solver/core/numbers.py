@@ -3,8 +3,7 @@ from fractions import Fraction
 from .common import convert_method_args
 from .symbol import Undefined, Symbol
 
-
-@convert_method_args('__add__', '__mul__', '__pow__', '__lt__', '__eq__')
+@convert_method_args()
 class Number(Atom):
 
     def __new__(cls, *args):
@@ -117,6 +116,7 @@ def is_nth_root(value, root):
     return u ** root.value == value.value
 
 
+@convert_method_args()
 class ReservedSymbol(Symbol, Number):
     """ Used to represent numbers like pi and e that have values but are imprecise.
 
@@ -131,11 +131,15 @@ class ReservedSymbol(Symbol, Number):
     def __eq__(self, other):
         if isinstance(other, ReservedSymbol):
             return self.name == other.name
+        elif isinstance(other, Number):
+            return other.value == self.value
         else:
             return super(ReservedSymbol, self).__eq__(other)
 
     def __lt__(self, other):
         if isinstance(other, ReservedSymbol):
             return self.name < other.name
+        elif isinstance(other, Number):
+            return self.value < other.value
         else:
             return super(ReservedSymbol, self).__lt__(other)
