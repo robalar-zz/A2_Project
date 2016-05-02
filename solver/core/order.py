@@ -23,13 +23,13 @@ def _isordered(u, v):
             n = len(v.args) - 1
 
             if u.args[m] != v.args[n]:
-                return _isordered(u.args[m], v.args[n])
+                return _comp(u.args[m], v.args[n])
 
             k = zip(u.args[::-1], v.args[::-1]) # zip last to last
 
             for j in k:
                 if j[0] != j[1]:
-                    return _isordered(j[0], j[1])
+                    return _comp(j[0], j[1])
 
             if all(j[0] == j[1] for j in k):
                 return m < n
@@ -37,9 +37,9 @@ def _isordered(u, v):
         #O-4
         if isinstance(u, Pow) and isinstance(v, Pow):
             if base(u) != base(v):
-                return _isordered(base(u), base(v))
+                return _comp(base(u), base(v))
             if base(u) == base(u):
-                return _isordered(exponent(u), exponent(v))
+                return _comp(exponent(u), exponent(v))
 
         #O-6
         if isinstance(u, Function) and isinstance(v, Function):
@@ -53,7 +53,7 @@ def _isordered(u, v):
 
                 for j in k:
                     if j[0] != j[1]:
-                        return _isordered(j[0], j[1])
+                        return _comp(j[0], j[1])
 
                 if all(j[0] == j[1] for j in k):
                     return m < n
@@ -64,15 +64,15 @@ def _isordered(u, v):
 
         #O-8
         if isinstance(u, Mul) and isinstance(v, (Pow, Add, Symbol, Function)):
-            return _isordered(u, Mul(v, simplify=False))
+            return _comp(u, Mul(v, simplify=False))
 
         #O-9
         if isinstance(u, Pow) and isinstance(v, (Add, Symbol, Function)):
-            return _isordered(u, Pow(v, Number(1), simplify=False))
+            return _comp(u, Pow(v, Number(1), simplify=False))
 
         #O-10
         if isinstance(u, Add) and isinstance(v, (Symbol, Function)):
-            return _isordered(u, Add(v, simplify=False))
+            return _comp(u, Add(v, simplify=False))
 
         #O-12
         if isinstance(u, Function) and isinstance(v, Symbol):
@@ -82,7 +82,7 @@ def _isordered(u, v):
                 return u.name < v.name
 
         #O-13
-        return not _isordered(v, u)
+        return not _comp(v, u)
 
     r = _comp(u, v)
     if r:
