@@ -1,14 +1,16 @@
 from nose.tools import assert_equal
-from nose.tools import assert_not_equal
 from nose.tools import assert_is_instance
+from nose.tools import assert_not_equal
+
 
 from solver.core.numbers import *
+from solver.core.symbol import Undefined
 
 
 def number_test():
     assert_is_instance(Number(1), Atom)
     assert_is_instance(Number(56), Integer)
-    assert_is_instance(Number(1,4), Rational)
+    assert_is_instance(Number(1, 4), Rational)
     assert_is_instance(Number('1.14125'), Rational)
 
     assert_equal(str(Number(1,3)), '1/3')
@@ -48,7 +50,7 @@ def number_equality_test():
     assert_equal(Number(1) < Number(2), True)
     assert_equal(Number(1,3) < Number(1), True)
     assert_equal(Number(1,4) < Number(1,2), True)
-    assert_equal(Number(1) < 45, False)
+    assert_equal(Number(1) < 45, True)
 
     assert_equal(Number(1) > Number(2), False)
     assert_equal(Number(1,3) > Number(1), False)

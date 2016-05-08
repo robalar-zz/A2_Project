@@ -1,7 +1,7 @@
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_true
 
 from solver.core.numbers import Integer, Undefined, Number
-from solver.core.order import is_asae, isordered
+from solver.core.order import is_asae, canonical_order
 from solver.core.symbol import Symbol
 from solver.core.operations import Mul, Add, Pow
 from solver.trigonometry.functions import sin, cos
@@ -51,10 +51,13 @@ def asae_6_test():
 
 
 def is_ordered_test():
+
+    are_ordered = lambda x, y: [x, y] == sorted([x, y], key=canonical_order)
+
     # O-1
-    assert_equal(isordered(Number(2), Number(3)), True)
-    assert_equal(isordered(Number(1,2), Number(1)), True)
-    assert_equal(isordered(Number(7,5), Number(1)), False)
+    assert_equal(are_ordered(Number(2), Number(3)), True)
+    assert_equal(are_ordered(Number(1, 2), Number(1)), True)
+    assert_equal(are_ordered(Number(7, 5), Number(1)), False)
 
     # O-2
     x = Symbol('x')
@@ -62,39 +65,44 @@ def is_ordered_test():
     abc = Symbol('abc')
     bcd = Symbol('bcd')
 
-    assert_equal(isordered(x, y), True)
-    assert_equal(isordered(bcd, abc), False)
+    assert_equal(are_ordered(x, y), True)
+    assert_equal(are_ordered(bcd, abc), False)
 
     # O-3
-    assert_equal(isordered(Mul(y, x), Mul(Number(2), x, y)), True)
-    assert_equal(isordered(Mul(Number(1), x,y), Mul(Number(2), x, y)), True)
-    assert_equal(isordered(Mul(x, y), Mul(Number(6), x, y)), True)
+    a = Symbol('a')
+    b = Symbol('b')
+    c = Symbol('c')
+    d = Symbol('d')
+
+    assert_true(are_ordered(a + b, a + c))
+    assert_true(are_ordered(a + c + d, b + c + d))
+    assert_true(are_ordered(c + d, b + c + d))
 
     # O-4
-    assert_equal(isordered(x**2, y**3), True)
-    assert_equal(isordered(x**2, x**3), True)
+    assert_equal(are_ordered(x ** 2, y ** 3), True)
+    assert_equal(are_ordered(x ** 2, x ** 3), True)
 
     # O-6
-    assert_equal(isordered(cos(x), sin(x)), True)
-    assert_equal(isordered(sin(x), sin(y)), True)
+    assert_equal(are_ordered(cos(x), sin(x)), True)
+    assert_equal(are_ordered(sin(x), sin(y)), True)
 
     # O-7
-    assert_equal(isordered(Number(2), x), True)
+    assert_equal(are_ordered(Number(2), x), True)
 
     # O-8
     a = Symbol('a')
-    assert_equal(isordered(a*x**2, x**3), True)
+    assert_equal(are_ordered(a * x ** 2, x ** 3), True)
 
     # O-9
-    assert_equal(isordered((1+x)**3, (1+y)), True)
+    assert_equal(are_ordered((1 + x) ** 3, (1 + y)), True)
 
     # O-10
-    assert_equal(isordered(1+x, y), True)
+    assert_equal(are_ordered(1 + x, y), True)
 
     # O-12
     s = Symbol('sin')  # why anyone would do this is beyond me, but worst case scenario...
-    assert_equal(isordered(s, sin(x)), True)
-    assert_equal(isordered(a, sin(x)), True)
+    assert_equal(are_ordered(s, sin(x)), True)
+    assert_equal(are_ordered(a, sin(x)), True)
 
     # O-13
-    assert_equal(isordered(x, x**2), True)
+    assert_equal(are_ordered(x, x ** 2), True)
