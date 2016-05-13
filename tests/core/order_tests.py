@@ -32,10 +32,10 @@ def asae_5_test():
     z = Symbol('z')
 
     assert_equal(is_asae(Add(Number(2) * x, Number(3) * y, Number(4) * z)), True)
-    assert_equal(is_asae(Add(Number(1), Add(x, y), z)), False)
-    assert_equal(is_asae(Add(Number(1), Number(2), x)), False)
-    assert_equal(is_asae(Add(Number(1), x, Mul(Number(2), x))), False)
-    assert_equal(is_asae(Add(z, y, x)), False)
+    assert_equal(is_asae(Add(Number(1), Add(x, y), z, simplify=False)), False)
+    assert_equal(is_asae(Add(Number(1), Number(2), x, simplify=False)), False)
+    assert_equal(is_asae(Add(Number(1), x, Mul(Number(2), x), simplify=False)), False)
+    assert_equal(is_asae(Add(z, y, x, simplify=False)), False)
 
 def asae_6_test():
     x = Symbol('x')
@@ -46,8 +46,8 @@ def asae_6_test():
     assert_equal(is_asae(Number(2)**x), True)
     assert_equal(is_asae(Pow(Number(2), Number(3))), False)
     assert_equal(is_asae(Pow((x*y), Number(2))), False)
-    assert_equal(is_asae(Pow(Number(1) + x, Number(1))), False)
-    assert_equal(is_asae(Pow(Number(1), x)), False)
+    assert_equal(is_asae(Pow(Number(1) + x, Number(1), simplify=False)), False)
+    assert_equal(is_asae(Pow(Number(1), x, simplify=False)), False)
 
 
 def is_ordered_test():
