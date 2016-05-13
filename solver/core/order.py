@@ -93,6 +93,10 @@ def _isordered(u, v):
 canonical_order = functools.cmp_to_key(_isordered)
 
 
+def are_ordered(u, v):
+    return [u, v] == sorted([u, v], key=canonical_order)
+
+
 def is_asae(u):
     # ASAE-1
     if isinstance(u, Integer):
@@ -114,7 +118,7 @@ def is_asae(u):
             result = result and base(i) != base(j)
 
             if ui < uj:
-                result = result and _isordered(i, j)
+                result = result and are_ordered(i, j)
 
         return result
 
@@ -129,7 +133,7 @@ def is_asae(u):
             result = result and term(i) != term(j)
 
             if ui < uj:
-                result = result and _isordered(i, j)
+                result = result and are_ordered(i, j)
 
         return result
 

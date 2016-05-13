@@ -22,8 +22,8 @@ class Expression(Base):
             if len(args) == 1:
                 return args[0]
 
-        if cls.commutative:
-            args.sort(key=canonical_order)
+            if cls.commutative:
+                args.sort(key=canonical_order)
 
         obj = super(Expression, cls).__new__(cls)
         obj.args = args

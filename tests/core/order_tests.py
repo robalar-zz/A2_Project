@@ -1,11 +1,11 @@
 from nose.tools import assert_equal, assert_true
 
 from solver.core.numbers import Integer, Undefined, Number
-from solver.core.order import is_asae, canonical_order
+from solver.core.order import is_asae, are_ordered
 from solver.core.symbol import Symbol
 from solver.core.operations import Mul, Add, Pow
 from solver.trigonometry.functions import sin, cos
-from solver.calculus.differentate import d
+
 
 def asae_1_test():
     assert_equal(is_asae(Integer(2)), True)
@@ -20,11 +20,11 @@ def asae_4_test():
     z = Symbol('z')
 
     assert_equal(is_asae(Mul(Number(2), x, y, z**Number(2))), True)
-    assert_equal(is_asae(Mul(Number(2), Mul(x, y), z**Number(2))), False)
-    assert_equal(is_asae(Mul(Number(1), x, y, z**Number(2))), False)
-    assert_equal(is_asae(Mul(Number(2), x, y, z, z**Number(2))), False)
-    assert_equal(is_asae(Mul(Number(2), Number(3), z, x, y)), False)
-    assert_equal(is_asae(Mul(z, y, x)), False)
+    assert_equal(is_asae(Mul(Number(2), Mul(x, y), z**Number(2), simplify=False)), False)
+    assert_equal(is_asae(Mul(Number(1), x, y, z**Number(2), simplify=False)), False)
+    assert_equal(is_asae(Mul(Number(2), x, y, z, z**Number(2), simplify=False)), False)
+    assert_equal(is_asae(Mul(Number(2), Number(3), z, x, y, simplify=False)), False)
+    assert_equal(is_asae(Mul(z, y, x, simplify=False)), False)
 
 def asae_5_test():
     x = Symbol('x')
@@ -51,8 +51,6 @@ def asae_6_test():
 
 
 def is_ordered_test():
-
-    are_ordered = lambda x, y: [x, y] == sorted([x, y], key=canonical_order)
 
     # O-1
     assert_equal(are_ordered(Number(2), Number(3)), True)
