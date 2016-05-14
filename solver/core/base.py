@@ -75,7 +75,7 @@ class Base(object):
         return LessThan(self, other)
 
     def __gt__(self, other):
-        return not self < other
+        return not self < other and self != other
 
     def __le__(self, other):
         return (self < other) or (self == other)

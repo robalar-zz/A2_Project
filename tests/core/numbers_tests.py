@@ -1,6 +1,6 @@
 from nose.tools import assert_equal
 from nose.tools import assert_is_instance
-from nose.tools import assert_not_equal
+from nose.tools import assert_not_equal, assert_false
 
 
 from solver.core.numbers import *
@@ -56,6 +56,9 @@ def number_equality_test():
     assert_equal(Number(1,3) > Number(1), False)
     assert_equal(Number(1,4) > Number(1,2), False)
     assert_equal(Number(3,5) > 4, False)
+
+    assert_false(Number(0) < Number(0))
+    assert_false(Number(0) > Number(0))
 
 
 def undefined_test():
