@@ -60,6 +60,9 @@ class Base(object):
     def __rdiv__(self, other):
         return other * self**-1
 
+    def __neg__(self):
+        return -1 * self
+
     # Equality magic methods
 
     @abstractmethod
