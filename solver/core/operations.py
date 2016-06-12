@@ -89,6 +89,8 @@ class Pow(Expression):
                 return [Number(1)]
             else:  # Range restrictions?
                 return [Undefined()]
+        elif isinstance(base, Pow):
+            return [base.base, (base.exponent * exponent)]
         else:
             return [base, exponent]
 
@@ -111,11 +113,12 @@ class Mul(Expression):
             if isinstance(item, Undefined):
                 return [Undefined()]
 
-            if isinstance(item, Number) and item != Number(1):
-                coefficient *= item
+            if isinstance(item, Number):
+                if item != Number(1):
+                    coefficient *= item
 
-                if isinstance(coefficient, Undefined):
-                    return [Undefined()]
+                    if isinstance(coefficient, Undefined):
+                        return [Undefined()]
 
                 continue
 
@@ -171,11 +174,12 @@ class Add(Expression):
                 return [Undefined()]
 
             # Numbers are added directly to the coefficient
-            if isinstance(item, Number) and item != Number(0):
-                if isinstance(item, Undefined):
-                    return [item]  # Sums containing Undefined are also Undefined.
-                else:
-                    coefficient += item
+            if isinstance(item, Number):
+                if item != Number(0):
+                    if isinstance(item, Undefined):
+                        return [item]  # Sums containing Undefined are also Undefined.
+                    else:
+                        coefficient += item
                 continue
 
             # Addition is commutative
@@ -245,10 +249,12 @@ def subexpressions(expression, types=Expression):
 def base(u):
     if isinstance(u, (Symbol, Mul, Add, Function)):
         return u
-    if isinstance(u, Pow):
+    elif isinstance(u, Pow):
         return u.base
-    if isinstance(u, (Number)):
+    elif isinstance(u, Number):
         return Undefined()
+    else:
+        raise ValueError('{} of type {} has fallen through'.format(u, type(u)))
 
 
 def exponent(u):
@@ -301,6 +307,7 @@ def numerator(u):
 
 
 def denominator(u):
+
     if isinstance(u, Rational):
         return Number(u.denominator)
     elif isinstance(u, Pow):
