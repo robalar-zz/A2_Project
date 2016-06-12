@@ -6,7 +6,8 @@ from ..calculus.differentate import d
 from ..core.matix import Matrix
 
 
-def basic_console(u, prior_presedence=0):
+def latex(u, prior_presedence=0):
+
     if isinstance(u, (Add, Mul, Pow)):
         result = format_operator(u)
 
@@ -19,10 +20,11 @@ def basic_console(u, prior_presedence=0):
         return u.name
 
     if isinstance(u, Number):
+
         result = str(u.value)
 
         if isinstance(u, Rational):
-            result = '(' + result + ')'
+            result = '\\frac{%d}{%d}' % (u.numerator, u.denominator)
 
         return result
 
@@ -35,12 +37,12 @@ def basic_console(u, prior_presedence=0):
 
 def format_operator(u):
     if isinstance(u, Mul):
-        l = [basic_console(x, u.precedence) for x in joinit(u.args, '')]
+        l = [latex(x, u.precedence) for x in joinit(u.args, '')]
         l = ['-' if x == '-1' else x for x in l]
     elif isinstance(u, Add):
-        l = [basic_console(x, u.precedence) for x in joinit(u.args, ' ' + u.symbol + ' ')]
-    else:
-        l = [basic_console(x, u.precedence) for x in joinit(u.args, u.symbol)]
+        l = [latex(x, u.precedence) for x in joinit(u.args, ' ' + u.symbol + ' ')]
+    elif isinstance(u, Pow):
+        l = [latex(u.base), '^{', latex(u.exponent), '}']
 
     s = ''.join(l)
     return s.replace('+ -', '- ')

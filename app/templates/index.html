@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block head %}
+    <link href="/static/css/index.css" rel="stylesheet">
+    <script src="/static/js/sprintf.js"></script>
+{% endblock %}
+{% block content %}
+    <div class="jumbotron">
+        <h1 class="mathquill-static-math">\rho \gamma CAS \phi</h1>
+        <p> A Mathematical Swiss Army Knife</p>
+
+        <div class="form-inline">
+            <div class="input-group">
+                <span class="input-large form-control mathform mathquill-math-field" id="input"></span>
+                <button type="submit" class="btn btn-primary" id="button" >Compute</button>
+            </div>
+        </div>
+    </div>
+    {% if modules %}
+        {% for module in modules %}
+            {{ module |safe }}
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block mathformating %}
+
+    var button = document.getElementById('button');
+
+    button.addEventListener('click', function(){
+        var math = MQ($('#input')[0]);
+        window.location.href = sprintf("{{ url_for('input') }}?i=%s", encodeURIComponent(math.latex()));
+    }, false);
+{% endblock %}

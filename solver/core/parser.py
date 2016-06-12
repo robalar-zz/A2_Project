@@ -4,6 +4,8 @@ from StringIO import StringIO
 from keyword import iskeyword
 import unicodedata
 
+from .symbol import Symbol
+
 def tokenize(s):
     usr_inp = StringIO(s.strip())
     result = []
@@ -55,7 +57,7 @@ def create_symbols(tokens, local_dict, global_dict):
             # if the token is a keyword...
             if(tok_value in [None, True, False] or iskeyword(tok_value)
                 # ...already initialized...
-                or tok_value in local_dict
+                or tok_value in local_dict or tok_value in global_dict
                 # ...is an attribute access...
                 or (previous_token[0] == token.OP and previous_token[1] == '.')
                 # ...is a keyword argument...
@@ -118,7 +120,22 @@ def implied_multiplication(tokens, local_dict, global_dict):
     return result
 
 
-transforms = [split_symbols, create_symbols, create_numbers, implied_multiplication]
+def convert_XOR(tokens, local_dict, global_dict):
+    """Treats XOR, ``^``, as exponentiation, ``**``."""
+    result = []
+    for toknum, tokval in tokens:
+        if toknum == token.OP:
+            if tokval == '^':
+                result.append((token.OP, '**'))
+            else:
+                result.append((toknum, tokval))
+        else:
+            result.append((toknum, tokval))
+
+    return result
+
+
+transforms = [split_symbols, create_symbols, create_numbers, implied_multiplication, convert_XOR]
 
 
 def parse(s, local_dictionary=None, global_dictionary=None, transformations=transforms):
@@ -129,6 +146,7 @@ def parse(s, local_dictionary=None, global_dictionary=None, transformations=tran
     if global_dictionary is None:
         global_dictionary = {}  # FIXME: Temp fix
         global_dictionary = __import__('solver', global_dictionary, local_dictionary, ['*']).__dict__
+        print global_dictionary
 
     tokens = tokenize(s)
 
