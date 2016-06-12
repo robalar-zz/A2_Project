@@ -91,6 +91,8 @@ class Pow(Expression):
                 return [Undefined()]
         elif isinstance(base, Pow):
             return [base.base, (base.exponent * exponent)]
+        elif isinstance(base, Mul):
+            return [Mul(*[x ** exponent for x in base.args])]
         else:
             return [base, exponent]
 
