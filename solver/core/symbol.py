@@ -14,7 +14,7 @@ class Symbol(Atom):
         
         super(Symbol, self).__init__()
         
-        if not isinstance(name, str):
+        if not isinstance(name, (str, unicode)):
             raise TypeError('A symbols name must be a string not {}'.format(type(name)))
         self.name = name
     
@@ -46,8 +46,8 @@ class Symbol(Atom):
 
 class Undefined(Symbol):
     
-    def __init__(self):
-        super(Undefined, self).__init__('Undefined')
+    def __init__(self, name='Undefined'):
+        super(Undefined, self).__init__(name)
     
     def __add__(self, other):
         return self
@@ -65,4 +65,28 @@ class Undefined(Symbol):
         return False
 
     def __ne__(self, other):
+        return True
+
+
+class Infinity(Undefined):
+
+    def __init__(self):
+        super(Infinity, self).__init__('Infinity')
+
+    def __lt__(self, other):
+        return True
+
+    def __gt__(self, other):
+        return False
+
+
+class NegativeInfinity(Undefined):
+
+    def __init__(self):
+        super(NegativeInfinity, self).__init__('-Infinity')
+
+    def __lt__(self, other):
+        return False
+
+    def __gt__(self, other):
         return True
