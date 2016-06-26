@@ -3,6 +3,7 @@ from .symbol import Symbol
 from .expr import Expression
 from .function import Function
 from .symbol import Undefined
+from .common import convert_type
 
 
 class Eq(Expression):
@@ -12,15 +13,14 @@ class Eq(Expression):
 
     def __new__(cls, lhs, rhs, **kwargs):
 
-        return super(Eq, cls).__new__(lhs, rhs, **kwargs)
+        lhs = convert_type(lhs)
+        rhs = convert_type(rhs)
 
-    @property
-    def lhs(self):
-        return self.args[0]
+        obj = super(Eq, cls).__new__(cls, lhs, rhs, **kwargs)
+        obj.lhs = lhs
+        obj.rhs = rhs
 
-    @property
-    def rhs(self):
-        return self.args[1]
+        return obj
 
     @classmethod
     def simplify(cls, seq):
@@ -129,9 +129,8 @@ class Mul(Expression):
                 seq.extend(item.args)
                 continue
 
-            base_part = base(item)  # HERE IS THE ISSUE!!!!
+            base_part = base(item)  # HERE IS THE ISSUE!!!! Fixed?
             exponent_part = exponent(item)
-
 
             if base_part in terms:
                 terms[base_part] += exponent_part
@@ -153,7 +152,11 @@ class Mul(Expression):
                 new_args.append(Pow(base_part, exponent_part))
 
         if coefficient != Number(1):
-            new_args.insert(0, coefficient)
+
+            if len(new_args) == 1 and isinstance(new_args[0], Add):
+                new_args = [Add(*[x * coefficient for x in new_args[0].args])]
+            else:
+                new_args.insert(0, coefficient)
 
         return new_args
 
