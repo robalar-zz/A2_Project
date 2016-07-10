@@ -5,6 +5,8 @@ from keyword import iskeyword
 import unicodedata
 
 from .symbol import Symbol
+from .base import Base
+
 
 def tokenize(s):
     usr_inp = StringIO(s.strip())
@@ -13,6 +15,7 @@ def tokenize(s):
         result.append((token_num, token_val))
 
     return result
+
 
 def is_function(token_str, local_dict, global_dict):
     func = local_dict.get(token_str)
@@ -27,7 +30,7 @@ def split_symbols(tokens, local_dict, global_dict):
     result = []
 
     for token_number, token_value in tokens:
-        if token_number == token.NAME:
+        if token_number == token.NAME and not is_function(token_value, local_dict, global_dict):
             try:
                 unicodedata.lookup('GREEK SMALL LETTER ' + token_value)
                 result.append((token_number, token_value))
@@ -57,7 +60,7 @@ def create_symbols(tokens, local_dict, global_dict):
             # if the token is a keyword...
             if(tok_value in [None, True, False] or iskeyword(tok_value)
                 # ...already initialized...
-                or tok_value in local_dict or tok_value in global_dict
+                or tok_value in local_dict
                 # ...is an attribute access...
                 or (previous_token[0] == token.OP and previous_token[1] == '.')
                 # ...is a keyword argument...
@@ -66,6 +69,11 @@ def create_symbols(tokens, local_dict, global_dict):
 
                 result.append((token.NAME, tok_value))
                 continue
+            elif tok_value in global_dict:
+                obj = global_dict[tok_value]
+                if isinstance(obj, Base) or issubclass(obj, Base):
+                    result.append((token.NAME, tok_value))
+                    continue
 
             # Create the function call
             result.extend([
@@ -146,7 +154,6 @@ def parse(s, local_dictionary=None, global_dictionary=None, transformations=tran
     if global_dictionary is None:
         global_dictionary = {}  # FIXME: Temp fix
         global_dictionary = __import__('solver', global_dictionary, local_dictionary, ['*']).__dict__
-        print global_dictionary
 
     tokens = tokenize(s)
 

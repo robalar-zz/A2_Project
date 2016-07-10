@@ -2,7 +2,8 @@ from flask import render_template, request
 from app import app
 
 from solver.core import *
-from solver.formating import latex
+from solver.polynomials.general_polynomial import variables
+from solver.formating import latex, basic_console
 from pylatexenc import latexwalker
 from pylatexenc.latex2text import default_macro_dict, LatexNodes2Text, MacroDef
 
@@ -16,17 +17,33 @@ def get_modules(user_input):
 
     modules = []
 
+    modules.append(render_template('input.html', title='Input', input=user_input))
+
     # Parse into solver
     parsed = parse(translate_latex(user_input))
 
     # format parsed input to latex and add to modules
     formatted = latex.latex(parsed)
-    modules.append(render_template('input.html', title='Input', input=formatted))
+    modules.append(render_template('input.html', title='Result', input=formatted))
 
     #graph test
-    modules.append(render_template('graph.html', title='Graph'))
+    graph_module = get_graph(parsed)
+    if graph_module:
+        modules.append(graph_module)
 
     return modules
+
+
+def get_graph(function):
+
+    v = variables(function)
+
+    if len(v) == 1:
+        return render_template('graph.html', title='Graph', function= basic_console(function), type='linear')
+    elif len(v) == 2:
+        return render_template('graph.html', title='Graph', function=basic_console(function), type='implicit')
+
+
 
 @app.route('/input', methods=['GET'])
 def input():
