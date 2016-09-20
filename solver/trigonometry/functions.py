@@ -1,16 +1,25 @@
 from solver.core.function import Function
 
+import math
+
 class sin(Function):
 
     name = 'sin'
 
+    @property
+    def derivative(self):
+        return lambda x: cos(x)
+
     def __init__(self, x):
         super(sin, self).__init__(x)
-
 
 class cos(Function):
 
     name = 'cos'
+
+    @property
+    def derivative(self):
+        return lambda x: -sin(x)
 
     def __init__(self, x):
         super(cos, self).__init__(x)
@@ -19,6 +28,10 @@ class cos(Function):
 class tan(Function):
 
     name = 'tan'
+
+    @property
+    def derivative(self):
+        return lambda x: sec(x)**2
 
     def __init__(self, x):
         super(tan, self).__init__(x)

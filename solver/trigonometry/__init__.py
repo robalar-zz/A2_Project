@@ -1,1 +1,1 @@
-from .functions import sin, cos, tan
+from .functions import sin, cos, tan, asin, acos, atan

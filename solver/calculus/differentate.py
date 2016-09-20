@@ -1,8 +1,7 @@
 from ..core.numbers import Number
-from ..core.operations import Pow, base, exponent, Add, Mul
-from ..core.expr import free_of
+from ..core.operations import Pow, Add, Mul, free_of, base, exponent
 from ..core.function import Function
-from ..trigonometry.functions import *
+
 
 class d(Function):
 
@@ -20,6 +19,10 @@ class ln(Function):
     name = 'ln'
     nargs = 1
 
+    @property
+    def derivative(self):
+        return lambda x: 1/x
+
     def __init__(self, x):
         super(ln, self).__init__(x)
 
@@ -27,6 +30,10 @@ class e(Function):
 
     name = 'e'
     nargs = 1
+
+    @property
+    def derivative(self):
+        return lambda x: e(x)
 
     def __init__(self, x):
         super(e, self).__init__(x)
@@ -51,24 +58,12 @@ def derivative(u, x):
         return derivative(v, x) * (u/v) + v * derivative(u/v, x)
 
     elif isinstance(u, Function):
-        if isinstance(u, sin):
-            v = u.args[0]
-            return cos(v) * derivative(v, x)
 
-        elif isinstance(u, cos):
-            v = u.args[0]
-            return -sin(v) * derivative(v, x)
+        v = u.args[0]
 
-        elif isinstance(u, tan):
-            v = u.args[0]
-            return sec(v)**2 * derivative(v, x)
-
-        elif isinstance(u, e):
-            v = u.args[0]
-            return u * derivative(v, x)
-
+        if u.derivative is not None:
+            return u.derivative(v) * derivative(v, x)
         else:
-            v = u.args[0]
             return d(u, x) * derivative(v, x)
 
     elif free_of(u, x):
