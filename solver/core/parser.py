@@ -143,7 +143,24 @@ def convert_XOR(tokens, local_dict, global_dict):
     return result
 
 
-transforms = [split_symbols, create_symbols, create_numbers, implied_multiplication, convert_XOR]
+def equals_to_eq(tokens, local_dict, global_dict):
+    """Turns '=' into instances of Eq"""
+    result = []
+    if (token.OP, '=') in tokens:
+        result.append((token.NAME, 'Eq'))
+        result.append((token.OP, '('))
+        for tok in tokens:
+            if tok == (token.OP, '='):
+                result.append((token.OP, ','))
+            else:
+                result.append(tok)
+        result.append((token.OP, ')'))
+    else:
+        result = tokens
+
+    return result
+
+transforms = [split_symbols, create_symbols, create_numbers, implied_multiplication, convert_XOR, equals_to_eq]
 
 
 def parse(s, local_dictionary=None, global_dictionary=None, transformations=transforms):
