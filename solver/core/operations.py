@@ -5,10 +5,6 @@ from .function import Function
 from .symbol import Undefined
 from .common import convert_type
 
-from itertools import chain, izip, repeat, islice
-
-def intersperse(delimiter, seq):
-    return islice(chain.from_iterable(izip(repeat(delimiter), seq)), 1, None)
 
 class Eq(Expression):
 
