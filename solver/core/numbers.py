@@ -79,7 +79,8 @@ class Number(Atom):
     def __abs__(self):
         return Number(abs(self.value))
 
-    def __repr__(self):
+    @property
+    def basic_string(self):
         return str(self.value)
 
 

@@ -104,6 +104,14 @@ class Base(object):
     def __hash__(self):
         raise NotImplementedError('A class derivied from base must implement its own hash method')
 
+    #Printing methods
+    @property
+    def basic_string(self):
+        raise NotImplementedError('No basic string representation implemented in {}'.format(self.__class__))
+
+    def __str__(self):
+        return self.basic_string
+
 class Atom(Base):
     """ Base class for any atomic type.
     """

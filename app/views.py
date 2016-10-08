@@ -1,7 +1,7 @@
 from flask import render_template, request
 from app import app
 
-from solver.core import *
+from solver import *
 from solver.polynomials.general_polynomial import variables
 from solver.formating import latex, basic_console
 from pylatexenc import latexwalker
@@ -31,19 +31,53 @@ def get_modules(user_input):
     if graph_module:
         modules.append(graph_module)
 
+    diff_module = get_diff(parsed)
+    if diff_module:
+        modules.append(diff_module)
+
     return modules
 
 
 def get_graph(function):
 
-    v = variables(function)
+    fn_string = ''
+    fn_type = ''
+    x_label = ''
 
-    if len(v) == 1:
-        return render_template('graph.html', title='Graph', function= basic_console(function), type='linear')
-    elif len(v) == 2:
-        return render_template('graph.html', title='Graph', function=basic_console(function), type='implicit')
+    # do paremetics, implement eq finally?
+    if isinstance(function, list):
+        if len(function) == 2 and variables(function[0]) == variables(function[1]):
+            data = ''
+
+    elif isinstance(function, Eq):
+        fn_string = (function.lhs - function.rhs).basic_string
+        fn_type = 'implicit'
+
+    else:
+        v = variables(function)
+
+        if len(v) == 1:
+            fn_string = function.basic_string
+            fn_type='linear'
+            x_label = str(v.pop())
+
+        elif len(v) == 2:
+            fn_string = function.basic_string
+            fn_type ='implicit'
+
+    return render_template('graph.html', title='Graph', function=fn_string, type=fn_type, x_label=x_label)
 
 
+def get_diff(function):
+
+    derivatives = dict()
+
+    vars = variables(function)
+    for var in vars:
+        d = derivative(function, var)
+        derivatives[var] = d
+
+    return render_template('diff.html', title='Derivatives', derivatives=derivatives, function=function)
 
 @app.route('/input', methods=['GET'])
 def input():

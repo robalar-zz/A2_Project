@@ -1,0 +1,10 @@
+{% extends "module.html" %}
+{% block content %}
+
+{% if derivatives %}
+    {% for key, value in derivatives.iteritems()  %}
+       <span class="mathquill-static-math">\frac{d}{d {{key}} } ({{function}}) = {{ value }}</span> <br>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

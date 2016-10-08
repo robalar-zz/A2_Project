@@ -40,8 +40,9 @@ class Symbol(Atom):
     def __hash__(self):
         return hash(self.name)
 
-    def __repr__(self):
-        return self.name
+    @property
+    def basic_string(self):
+        return str(self.name)
 
 
 class Undefined(Symbol):

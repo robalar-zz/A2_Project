@@ -5,11 +5,16 @@ from .function import Function
 from .symbol import Undefined
 from .common import convert_type
 
+from itertools import chain, izip, repeat, islice
+
+def intersperse(delimiter, seq):
+    return islice(chain.from_iterable(izip(repeat(delimiter), seq)), 1, None)
 
 class Eq(Expression):
 
     symbol = '='
     commutative = True
+    precedence = 5
 
     def __new__(cls, lhs, rhs, **kwargs):
 
@@ -96,6 +101,24 @@ class Pow(Expression):
         else:
             return [base, exponent]
 
+    @property
+    def basic_string(self):
+
+        string = ''
+
+        for i, arg in enumerate(self.args):
+            arg_string = arg.basic_string
+
+            if isinstance(arg, (Add, Mul, Pow)) and arg.precedence <= self.precedence:
+                arg_string = '(' + arg_string + ')'
+
+            if i == 0:
+                arg_string += '^'
+
+            string += arg_string
+
+
+        return string
 
 class Mul(Expression):
 
@@ -160,6 +183,23 @@ class Mul(Expression):
 
         return new_args
 
+    @property
+    def basic_string(self):
+
+        string = ''
+
+        for arg in self.args:
+            arg_string = arg.basic_string
+
+            if isinstance(arg, (Add, Mul, Pow)) and arg.precedence <= self.precedence:
+                    arg_string = '(' + arg_string + ')'
+
+            if arg == -1:
+                arg_string = '-'
+
+            string += arg_string
+
+        return string
 
 class Add(Expression):
 
@@ -223,6 +263,24 @@ class Add(Expression):
             new_args.insert(0, coefficient)
 
         return new_args
+
+    @property
+    def basic_string(self):
+
+        string = ''
+
+        for i, arg in enumerate(self.args):
+            arg_string = arg.basic_string
+
+            if isinstance(arg, (Add, Mul, Pow)) and arg.precedence <= self.precedence:
+                arg_string = '(' + arg_string + ')'
+
+            if i != len(self.args) - 1:  # Not the last arg
+                arg_string += '+'
+
+            string += arg_string
+
+        return string.replace('+-', '-')
 
 
 

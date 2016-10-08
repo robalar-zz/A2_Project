@@ -7,6 +7,10 @@
 <script type="text/javascript">
     functionPlot({
     target: '#graph',
+    grid: true,
+    xAxis : {
+        label: '{{ x_label }}'
+    },
     data: [{
       fn: '{{ function }}',
       fnType: '{{ type }}'
