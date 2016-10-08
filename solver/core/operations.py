@@ -27,6 +27,9 @@ class Eq(Expression):
     def simplify(cls, seq):
         return seq
 
+    @property
+    def basic_string(self):
+        return '{}={}'.format(self.lhs.basic_string, self.rhs.basic_string)
 
 class NEq(Eq):
 
