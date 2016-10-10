@@ -1,6 +1,5 @@
-from solver.core.function import Function
+from ..core.function import Function
 
-import math
 
 class sin(Function):
 
