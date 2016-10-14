@@ -119,6 +119,7 @@ class Pow(Expression):
 
         return string
 
+
 class Mul(Expression):
 
     symbol = '*'
@@ -130,7 +131,6 @@ class Mul(Expression):
     def simplify(cls, seq):
         coefficient = Number(1)
         terms = {}
-
 
         for item in seq:
 
@@ -179,6 +179,9 @@ class Mul(Expression):
                 new_args = [Add(*[x * coefficient for x in new_args[0].args])]
             else:
                 new_args.insert(0, coefficient)
+        else:
+            if len(new_args) == 0:
+                return [coefficient]
 
         return new_args
 
