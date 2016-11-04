@@ -14,9 +14,9 @@ class Base(object):
     - __eq__
     - __lt__
 
-    These methods should return a known iteraction (ie Number + Number -> Number) or a call to super(...), which will
-    eventually create the apropriate operator instance. Of course other methods can be overidden but this should not be
-    necicerry for most use cases.
+    These methods should return a known interaction (ie Number + Number -> Number) or a call to super(...), which will
+    eventually create the appropriate operator instance. Of course other methods can be overridden but this should not be
+    necessary for most use cases.
 
     """
 
@@ -112,7 +112,17 @@ class Base(object):
     def __str__(self):
         return self.basic_string
 
-class Atom(Base):
+
+class FlyweightMixin(object):
+    _instances = dict()
+
+    def __new__(cls, *args, **kargs):
+        return cls._instances.setdefault(
+                    (cls, args, tuple(kargs.items())),
+                    object.__new__(cls))
+
+
+class Atom(Base, FlyweightMixin):
     """ Base class for any atomic type.
     """
 
