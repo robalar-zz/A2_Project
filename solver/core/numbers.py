@@ -83,6 +83,10 @@ class Number(Atom):
     def basic_string(self):
         return str(self.value)
 
+    @property
+    def latex(self):
+        return self.basic_string
+
     def __repr__(self):
         return repr(self.value)
 

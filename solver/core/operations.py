@@ -31,6 +31,10 @@ class Eq(Expression):
     def basic_string(self):
         return '{}={}'.format(self.lhs.basic_string, self.rhs.basic_string)
 
+    @property
+    def latex(self):
+        return self.basic_string
+
 class NEq(Eq):
 
     symbol = '!='
@@ -119,6 +123,22 @@ class Pow(Expression):
 
         return string
 
+    @property
+    def latex(self):
+        if isinstance(self.exponent, Number) and self.exponent < 0:  # TODO: sign function?
+            return '\\frac{1}{%s}}' % (self**-1).latex
+        else:
+
+            base_string = self.base.latex
+
+            if self.exponent == 1:
+                return base_string
+
+            if isinstance(base, (Add, Mul)):
+                base_string = '(' + base_string + ')'
+
+            return '%s^{%s}' % (base_string, self.exponent.latex)
+
 
 class Mul(Expression):
 
@@ -203,6 +223,31 @@ class Mul(Expression):
 
         return string
 
+    @property
+    def latex(self):
+
+        num = numerator(self)
+        den = denominator(self)
+
+        if den == 1:
+
+            string = ''
+
+            for arg in self.args:
+                arg_string = arg.latex
+
+                if isinstance(arg, (Add, Mul, Pow)) and arg.precedence <= self.precedence:
+                        arg_string = '(' + arg_string + ')'
+
+                if arg == -1:
+                    arg_string = '-'
+
+                string += arg_string
+
+            return string
+        else:
+            return '\\frac{%s}{%s}' % (num.latex, den.latex)
+
 class Add(Expression):
 
     symbol = '+'
@@ -284,6 +329,22 @@ class Add(Expression):
 
         return string.replace('+-', '-')
 
+    @property
+    def latex(self):
+        string = ''
+
+        for i, arg in enumerate(self.args):
+            arg_string = arg.latex
+
+            if isinstance(arg, (Add, Mul, Pow)) and arg.precedence <= self.precedence:
+                arg_string = '(' + arg_string + ')'
+
+            if i != len(self.args) - 1:  # Not the last arg
+                arg_string += '+'
+
+            string += arg_string
+
+        return string.replace('+-', '-')
 
 
 def free_of(u, t):
@@ -379,7 +440,7 @@ def denominator(u):
     if isinstance(u, Rational):
         return Number(u.denominator)
     elif isinstance(u, Pow):
-        if exponent(u) < Number(0):
+        if exponent(u) < 0:
             return base(u) ** abs(exponent(u))
         else:
             return Number(1)

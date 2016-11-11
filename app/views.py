@@ -2,7 +2,6 @@ from flask import render_template, request
 from app import app
 
 from solver import *
-from solver.formating import latex, basic_console
 from pylatexenc import latexwalker
 from pylatexenc.latex2text import default_macro_dict, LatexNodes2Text, MacroDef
 
@@ -21,8 +20,9 @@ def get_modules(user_input):
     parsed = parse(translate_latex(user_input))
 
     # format parsed input to latex and add to modules
-    formatted = latex.latex(parsed)
-    modules.append(render_template('input.html', title='Result', input=parsed.basic_string))
+
+
+    modules.append(render_template('input.html', title='Result', input=parsed.latex))
 
     #graph test
     graph_module = get_graph(parsed)

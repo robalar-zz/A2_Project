@@ -109,6 +109,10 @@ class Base(object):
     def basic_string(self):
         raise NotImplementedError('No basic string representation implemented in {}'.format(self.__class__))
 
+    @property
+    def latex(self):
+        raise NotImplementedError('No latex representation implemented in {}'.format(self.__class__))
+
     def __str__(self):
         return self.basic_string
 

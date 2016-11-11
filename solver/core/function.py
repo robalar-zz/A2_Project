@@ -27,6 +27,10 @@ class Function(Expression):
     def basic_string(self):
         return '{}({})'.format(self.name, ''.join([x.basic_string for x in self.args]))
 
+    @property
+    def latex(self):
+        return '\\{}({})'.format(self.name, ''.join([x.latex for x in self.args]))
+
     @classmethod
     def eval(cls, args):
         return self

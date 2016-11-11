@@ -53,6 +53,8 @@ def derivative(u, x):
             return -derivative(v, x)/derivative(v, y)
         elif len(syms) == 1:
             return derivative(v, x)
+        else:
+            raise NotImplementedError('Implicit derivatives for > 2 variables is not supported')
 
     elif isinstance(u, Pow):
         w = exponent(u)

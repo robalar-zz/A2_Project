@@ -3,7 +3,7 @@
 
 {% if derivatives %}
     {% for key, value in derivatives.iteritems()  %}
-       <span class="mathquill-static-math">\frac{d}{d {{key}} } ({{function}}) = {{ value }}</span> <br>
+       <span class="mathquill-static-math">\frac{d}{d {{key.latex}} } ({{function.latex}}) = {{ value.latex }}</span> <br>
     {% endfor %}
 {% endif %}
 
