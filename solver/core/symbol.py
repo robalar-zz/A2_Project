@@ -1,4 +1,5 @@
 from .base import Atom
+from .expr import Expression
 
 
 class Symbol(Atom):
@@ -94,3 +95,12 @@ class NegativeInfinity(Undefined):
 
     def __gt__(self, other):
         return True
+
+def free_symbols(u):
+
+    if isinstance(u, Expression):
+        return set().union(*[free_symbols(x) for x in u.args])
+    elif isinstance(u, Symbol):
+        return {u}
+    else:
+        return set()

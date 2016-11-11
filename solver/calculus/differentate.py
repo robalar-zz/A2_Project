@@ -1,7 +1,7 @@
 from ..core.numbers import Number
 from ..core.operations import Pow, Add, Mul, free_of, base, exponent, Eq
 from ..core.function import Function
-from ..polynomials.general_polynomial import variables
+from ..core.symbol import free_symbols
 
 class d(Function):
 
@@ -46,12 +46,12 @@ def derivative(u, x):
 
     elif isinstance(u, Eq):
         v = u.lhs - u.rhs
-        vars = variables(u)
+        syms = free_symbols(u)
 
-        if len(vars) == 2:
-            y = (vars - {x}).pop()
+        if len(syms) == 2:
+            y = (syms - {x}).pop()
             return -derivative(v, x)/derivative(v, y)
-        elif len(vars) == 1:
+        elif len(syms) == 1:
             return derivative(v, x)
 
     elif isinstance(u, Pow):

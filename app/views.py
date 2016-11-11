@@ -2,11 +2,9 @@ from flask import render_template, request
 from app import app
 
 from solver import *
-from solver.polynomials.general_polynomial import variables
 from solver.formating import latex, basic_console
 from pylatexenc import latexwalker
 from pylatexenc.latex2text import default_macro_dict, LatexNodes2Text, MacroDef
-
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -24,7 +22,7 @@ def get_modules(user_input):
 
     # format parsed input to latex and add to modules
     formatted = latex.latex(parsed)
-    modules.append(render_template('input.html', title='Result', input=formatted))
+    modules.append(render_template('input.html', title='Result', input=parsed.basic_string))
 
     #graph test
     graph_module = get_graph(parsed)
@@ -46,7 +44,7 @@ def get_graph(function):
 
     # do paremetics, implement eq finally?
     if isinstance(function, list):
-        if len(function) == 2 and variables(function[0]) == variables(function[1]):
+        if len(function) == 2 and free_symbols(function[0]) == free_symbols(function[1]):
             data = ''
 
     elif isinstance(function, Eq):
@@ -54,7 +52,7 @@ def get_graph(function):
         fn_type = 'implicit'
 
     else:
-        v = variables(function)
+        v = free_symbols(function)
 
         if len(v) == 1:
             fn_string = function.basic_string
@@ -72,7 +70,7 @@ def get_diff(function):
 
     derivatives = dict()
 
-    vars = variables(function)
+    vars = free_symbols(function)
     for var in vars:
         d = derivative(function, var)
         derivatives[var] = d
