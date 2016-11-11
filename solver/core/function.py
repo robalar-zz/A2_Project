@@ -4,10 +4,8 @@ from .expr import Expression
 class Function(Expression):
 
     name = None
-
+    commutative = False
     nargs = 1
-
-    callback = None
 
     @property
     def derivative(self):
@@ -19,10 +17,8 @@ class Function(Expression):
         elif len(args) < cls.nargs:
             raise ValueError('Not enough args passed to {}'.format(cls.name))
 
-        return super(Function, cls).__new__(cls, *args, simplify=False)
 
-    def evaluate(self):
-        return self.callback(*self.args)
+        return super(Function, cls).__new__(cls, *args)
 
     def __hash__(self):
         return hash(self.name)
@@ -30,3 +26,7 @@ class Function(Expression):
     @property
     def basic_string(self):
         return '{}({})'.format(self.name, ''.join([x.basic_string for x in self.args]))
+
+    @classmethod
+    def eval(cls, args):
+        return self

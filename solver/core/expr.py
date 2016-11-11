@@ -8,6 +8,7 @@ class Expression(Base):
 
         from .order import canonical_order
         from .common import convert_type
+        from .function import Function
 
         if 'simplify' in kwargs:
             simp = kwargs['simplify']
@@ -19,7 +20,7 @@ class Expression(Base):
         if simp:
             args = cls.simplify(args)
 
-            if len(args) == 1:
+            if len(args) == 1 and not issubclass(cls, Function):
                 return args[0]
 
             if cls.commutative:
