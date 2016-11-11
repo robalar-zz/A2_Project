@@ -367,6 +367,9 @@ def numerator(u):
     elif isinstance(u, Mul):
         v = u.args[0]
         return numerator(v) * numerator(u/v)
+    elif isinstance(u, Add):
+        n, _ = _numer_denom(u)
+        return n
     else:
         return u
 
@@ -383,5 +386,25 @@ def denominator(u):
     elif isinstance(u, Mul):
         v = u.args[0]
         return denominator(v) * denominator(u/v)
+    elif isinstance(u, Add):
+        _, d = _numer_denom(u)
+        return d
     else:
         return Number(1)
+
+
+def _numer_denom(u):
+
+    numer_denom_dict = {}
+    for arg in u.args:
+        numer = numerator(arg)
+        denom = denominator(arg)
+
+        if denom in numer_denom_dict:
+            numer_denom_dict[denom] += numer
+        else:
+            numer_denom_dict[denom] = numer
+
+    denominators, numerators = numer_denom_dict.keys(), numer_denom_dict.values()
+
+    return Add(*[Mul(*(denominators[:i] + [numerators[i]] + denominators[i + 1:])) for i in range(len(numerators))]), Mul(*denominators)
