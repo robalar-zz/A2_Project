@@ -44,6 +44,9 @@ class Symbol(Atom):
     def basic_string(self):
         return str(self.name)
 
+    def __repr__(self):
+        return self.name
+
 
 class Undefined(Symbol):
     

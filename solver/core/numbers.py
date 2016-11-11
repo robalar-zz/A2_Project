@@ -83,6 +83,8 @@ class Number(Atom):
     def basic_string(self):
         return str(self.value)
 
+    def __repr__(self):
+        return repr(self.value)
 
 class Integer(Number):
 
@@ -117,6 +119,7 @@ def is_nth_root(value, root):
     return u ** root.value == value.value
 
 
+# TODO: Redo
 @convert_method_args()
 class ReservedSymbol(Symbol, Number):
     """ Used to represent numbers like pi and e that have values but are imprecise.
