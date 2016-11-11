@@ -1,7 +1,7 @@
 from ..core.numbers import Number
-from ..core.operations import Pow, Add, Mul, free_of, base, exponent
+from ..core.operations import Pow, Add, Mul, free_of, base, exponent, Eq
 from ..core.function import Function
-
+from ..polynomials.general_polynomial import variables
 
 class d(Function):
 
@@ -43,6 +43,16 @@ class e(Function):
 def derivative(u, x):
     if u == x:
         return Number(1)
+
+    elif isinstance(u, Eq):
+        v = u.lhs - u.rhs
+        vars = variables(u)
+
+        if len(vars) == 2:
+            y = (vars - {x}).pop()
+            return -derivative(v, x)/derivative(v, y)
+        elif len(vars) == 1:
+            return derivative(v, x)
 
     elif isinstance(u, Pow):
         w = exponent(u)
