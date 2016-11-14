@@ -309,6 +309,9 @@ class Add(Expression):
         if coefficient != Number(0):
             new_args.insert(0, coefficient)
 
+        if not new_args:
+            new_args.append(coefficient)
+
         return new_args
 
     @property
