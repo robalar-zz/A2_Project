@@ -1,5 +1,5 @@
 from .base import Atom
-from fractions import Fraction
+from fractions import Fraction, gcd
 from .common import convert_method_args
 from .symbol import Undefined, Symbol
 
@@ -14,8 +14,13 @@ class Number(Atom):
 
                 if isinstance(arg, (int, long)):
                     return super(Number, cls).__new__(Integer, arg)
-                elif isinstance(arg, (basestring, float, Fraction)):
+                elif isinstance(arg, (basestring, float)):
                     return super(Number, cls).__new__(Rational, arg)
+                elif isinstance(arg, Fraction):
+                    if arg.denominator == 1:
+                        return super(Number, cls).__new__(Integer, arg.numerator)
+                    else:
+                        return super(Number, cls).__new__(Rational, arg)
 
             if len(args) == 2:
                 return super(Number, cls).__new__(Rational, *args)
@@ -100,7 +105,7 @@ class Integer(Number):
 class Rational(Number):
     """ Purely a wrapper for the builtin fraction class
     """
-    
+
     def __init__(self, *args):
 
         self.value = Fraction(*args).limit_denominator()
@@ -151,3 +156,18 @@ class ReservedSymbol(Symbol, Number):
             return self.value < other.value
         else:
             return super(ReservedSymbol, self).__lt__(other)
+
+
+def lcm(*values):
+
+    if len(values) == 2:
+
+        m = values[0]
+        n = values[1]
+
+        if not(isinstance(m, Integer) and isinstance(n, Integer)):
+            raise ValueError('lcm is only defined for integer values')
+
+        return abs(m * n)/gcd(m.value, n.value)
+    else:
+        return lcm(values[0], lcm(*values[1:]))
